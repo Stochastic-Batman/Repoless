@@ -1,0 +1,981 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\title{Notes on Game Theory}
+\author{Lado Turmanidze \\ \small{Stochastic Batman}}
+\date{August-September, 2025}
+
+\newcommand{\E}{\mathbb{E}}
+
+\begin{document}
+	\maketitle
+	
+	\begin{abstract}
+		These notes are based on Yale University's Game Theory (ECON 159) with Professor Dr. Ben Polak. These lectures were recorded in 2007 and are available at no cost on \href{https://youtube.com/playlist?list=PL6EF60E1027E1A10B&si=2oTyP3WSPA8ui89m}{YouTube}. It is advised to first watch the lectures, then read these notes. Gemini 2.5 Flash was used to correct the grammar.
+	\end{abstract}
+	
+	\section{Introduction: Five First Lessons}
+	
+	\subsection*{What is Game Theory?}
+	Game theory is a method of studying strategic situations. A strategic situation is defined as a setting where the outcomes that affect you depend not just on your own actions, but also on the actions of others. This is contrasted with non-strategic situations, where individuals do not need to worry about the actions of competitors.
+	
+	\subsection*{Elements of a Game}
+	\begin{itemize}
+		\item \textbf{Strategies} $\gets$ A complete plan of action for a player in a game.
+		\item \textbf{Actions} $\gets$ The individual moves or choices made by players.
+		\item \textbf{Outcomes} $\gets$ The results of the combined actions of all players.
+		\item \textbf{Payoffs} $\gets$ These represent what people are trying to maximize, often referred to as "utils" or "utilities." Payoffs must be known before a game can be analyzed.
+	\end{itemize}
+	
+	\subsection*{Strictly Dominant and Dominated Strategies}
+	\begin{itemize}
+		\item \textbf{Strictly Dominant Strategy} $\gets$ A strategy that is always the best choice for a player, regardless of what the other players do.
+		\item \textbf{Strictly Dominated Strategy} $\gets$ A strategy where the payoff from one choice is always less than another, regardless of what the other player does.
+	\end{itemize}
+	The first lesson of game theory is to avoid playing a strictly dominated strategy, as a rational player will always choose the alternative that yields a better outcome.
+	
+	\subsection*{The Prisoner's Dilemma}
+	The Prisoner's Dilemma is a classic example of a game where individual rational choices can lead to a collectively bad outcome. It illustrates the failure of collusion due to self-interest.
+	
+	\begin{itemize}
+		\item \textbf{Scenario}: Two suspects are arrested and interrogated separately. They are offered a deal:
+		\begin{itemize}
+			\item If you confess and the other remains silent, you go free, and they get 5 years.
+			\item If both confess, you each get 2 years.
+			\item If both remain silent, you each get only 1 year (on a minor charge).
+		\end{itemize}
+		\item \textbf{Analysis}: From each prisoner's perspective, the best choice is to confess, regardless of what the other person does. Confessing is a strictly dominant strategy. However, when both act rationally and confess, they both receive 2 years, a worse outcome than the 1 year they would have received if they had both remained silent.
+	\end{itemize}
+	
+	\subsection*{Coordination Problems}
+	This refers to games where players need to coordinate their actions to achieve a mutually beneficial outcome. Unlike the Prisoner's Dilemma, these games don't have a single dominant strategy. Instead, there are multiple outcomes where no player has an incentive to unilaterally deviate.
+	
+	\begin{itemize}
+		\item \textbf{Example}: Two people want to meet, but they have two options: going to the cinema or going to the cafe. Both prefer to meet rather than not, and both prefer the same location.
+		\item \textbf{Analysis}: There are two good outcomes: both go to the cinema, or both go to the cafe. No one wants to change their mind once a choice is made (e.g., if you're at the cinema and your friend is also at the cinema, you don't want to leave for the cafe). The "solution" to this game depends on the players' ability to anticipate and coordinate with each other's actions, perhaps by pre-arranging a meeting place.
+	\end{itemize}
+	
+	\subsection*{Lessons from the Game}
+	\begin{enumerate}
+		\item \textbf{Do not play a strictly dominated strategy}. Choosing the dominating strategy will always yield a better outcome for the player, regardless of the other players' actions.
+		\item \textbf{Rational choice can lead to bad outcomes}. The Prisoner's Dilemma exemplifies this, as both players acting rationally leads to a collectively worse outcome than if they had both cooperated.
+		\item \textbf{Payoffs matter}. The nature of the game changes when the players' objectives or goals change.
+		\item \textbf{Put yourself in others' shoes}. This is crucial for making informed decisions, especially when you do not have a dominant strategy yourself.
+	\end{enumerate}
+	
+	\section{Putting Yourselves Into Other People's Shoes}
+	
+	\subsection*{Notation}
+	\begin{enumerate}
+		\item \textbf{Players}: Denoted by indices like $i$ and $j$. For a game with two players, we might refer to them as player 1 and player 2.
+		\item \textbf{Strategies}:
+		\begin{itemize}
+			\item $s_i \gets$ A specific strategy for player $i$.
+			\item $S_i \gets$ The set of all possible strategies for player i.
+			\item $s \gets$ A "strategy profile" or a list of strategies chosen by all players. For a two-player game, this might be written as $(s_1,s_2)$.
+			\item $s_{-i} \gets$ The list of strategies chosen by all players except for player $i$. For a two-player game, $s_{-1}$ would simply be $s_2$.
+		\end{itemize}
+		\item \textbf{Payoffs}: $u_i(s) \gets$ The payoff for player $i$ when the strategy profile is $s$. The payoff for a player depends on the actions of all players in the game.
+	\end{enumerate}
+		
+	\subsection*{Dominated Strategies}
+		\begin{itemize}
+			\item \textbf{Strictly Dominated Strategy}: A strategy $s_i'$ is strictly dominated by strategy $s_i$ if the payoff from $s_i$ is always greater than the payoff from $s_i'$, regardless of what the other players do: $u_i (s_i, s_{-i}) > u_i (s_i', s_{-i}), \, \forall s_{-i}$.
+			
+			\item \textbf{Weakly Dominated Strategy}: A strategy $s_i'$ is weakly dominated by strategy $s_i$ if the payoff from $s_i$ is always at least as high as the payoff from $s_i'$, and for at least one case, it's strictly higher.
+			$$ u_i(s_i, s_{-i}) \geq u_i(s_i', s_{-i}), \forall s_{-i} \text{ and } \exists j \text{ such that } u_i(s_i, s_j) > u_i(s_i', s_j) $$
+			
+		\end{itemize}
+		
+	\subsection*{The Process of Iterated Deletion}
+		
+	This is a method of solving games by successively eliminating dominated strategies. The process is based on certain assumptions about the players' rationality.
+		
+	\begin{itemize}
+			\item \textbf{Rationality}: A rational player will not play a dominated strategy.
+			\item \textbf{Knowledge of Rationality}: You assume that the other players are also rational and will therefore not play their dominated strategies.
+			\item \textbf{Common Knowledge of Rationality}: This is the idea that "I know that you know that I know that you know..." and so on. If rationality is common knowledge among all players, they can continue to eliminate strategies that are dominated only after the first round of dominated strategies have been removed.
+	\end{itemize}
+	
+	\subsection*{Mutual vs Common Knowledge}
+	
+	In a thought experiment, two teaching assistants (TAs) are asked to stand facing each other. The professor places a hat on each of their heads. Both hats are pink, but the TAs are unaware of this. The TAs are told that there is at least one pink hat (though it does not really matter if they were told this, as they can see each other's hats). The professor then asks, "If you know the color of your hat, you may rise your hand."
+	
+	Here is the difference between the two types of knowledge in this scenario:
+	
+	\begin{description}
+		\item[Mutual Knowledge] $\gets$ A fact is mutual knowledge if everyone knows it. In this experiment, it was mutual knowledge that there was at least one pink hat. Each TA could see the other's pink hat, so they both knew this fact.
+		\item[Common Knowledge] $\gets$ A fact is common knowledge if everyone knows it, and everyone knows that everyone knows it, and everyone knows that everyone knows that everyone knows it, and so on, ad infinitum. In the hat experiment, the existence of at least one pink hat was not common knowledge. The TAs couldn't be sure if the other person knew the color of their own hat, preventing the infinite chain of reasoning. The fact that they both raised their hands provided a crucial signal, which, combined with the rules of the game, could eventually lead to common knowledge.
+	\end{description}
+	
+	\section{Iterative Deletion and the Median-Voter Theorem}
+	
+	\subsection*{Iterated Deletion of Dominated Strategies}
+	This is a process of solving a game by successively eliminating dominated strategies. The steps are as follows:
+	\begin{enumerate}
+		\item Identify and delete any dominated strategies for all players.
+		\item Re-examine the simplified game to see if any new strategies have become dominated.
+		\item Repeat the process until no more strategies can be deleted.
+	\end{enumerate}
+	This method is a way of "putting oneself in another's shoes" to predict their rational choices and, by extension, the final outcome of the game.
+	
+	\subsection*{The Median-Voter Theorem}
+	 Professor Polak uses a political model to demonstrate the power of iterative deletion, which leads to a key concept known as the Median-Voter Theorem.
+	
+	\subsubsection*{The Model}
+	\begin{itemize}
+		\item \textbf{Players}: Two political candidates.
+		\item \textbf{Strategies}: Candidates choose a position on a political spectrum from 1 (extreme left) to 10 (extreme right).
+		\item \textbf{Voters}: Voters are uniformly distributed across the spectrum, with 10\% at each position.
+		\item \textbf{Voter Behavior}: Voters will choose the candidate whose position is closest to their own. In case of a tie, the vote is split evenly.
+		\item \textbf{Payoff}: Candidates seek to maximize their share of the vote.
+	\end{itemize}
+	
+	\subsubsection*{Example of Iterative Deletion}
+	By applying the iterative deletion process, a candidate choosing position 1 will lose to a candidate choosing position 2, as the latter captures votes from positions 1, 2, 3, $\dots$, 10: $$u_1 (2, k) > u_1 (1, k), \forall k \in \{1, \dots, 10\}$$ Similarly, a candidate at position 10 will lose to one at position 9. This process continues, eliminating strategies from the extremes inward. The result is that all strategies except for positions 5 and 6 are eliminated. This forces candidates to "crowd the center" to win the election.
+	
+	\subsubsection*{Summary and Real-World Relevance}
+	The Median-Voter Theorem predicts that in a two-party system, candidates will converge on the position of the median voter, as this is the winning strategy. Examples from American politics include the Kennedy-Nixon and Nixon-Humphrey elections, as well as the campaigns of Bill Clinton and Tony Blair. The principle also applies to economics, such as businesses clustering together to be closest to the majority of customers (product placement problem: why do two rival businesses build shops next to each other).
+	
+	\subsubsection*{Limitations of the Model}
+	The model's predictions are based on several simplifying assumptions that may not hold in the real world:
+	\begin{itemize}
+		\item Voters are not uniformly distributed.
+		\item The model doesn't account for voter turnout.
+		\item The political spectrum is more complex than a single dimension.
+		\item Candidates may not be able to credibly commit to their stated positions.
+	\end{itemize}
+	
+	\subsection*{Best Response}
+	A "best response" is a strategy that yields the highest payoff for a player, given a specific strategy or belief about the strategies chosen by other players. It is a fundamental concept for predicting a player's rational choice.
+	
+	\textbf{Example}: Consider a game with no dominated strategy, where Player 1 has three choices (Up, Middle, Down) and Player 2 has two (Left, Right).
+	\begin{center}
+		\begin{tabular}{|c|c|c|}
+			\cline{2-3}
+			\multicolumn{1}{c|}{} & $l$ & $r$ \\
+			\hline
+			$U$ & 5, 1 & 0, 2 \\
+			\hline
+			$M$ & 1, 3 & 4, 1 \\
+			\hline
+			$D$ & 4, 2 & 2, 3 \\
+			\hline
+		\end{tabular}
+	\end{center}
+		
+	\begin{enumerate}
+		\item For whatever reason, if Player 1 believes Player 2 will choose Left, Player 1's best response is to choose Up.
+		\item For whatever reason, if Player 1 believes Player 2 will choose Right, Player 1's best response is to choose Middle.
+	\end{enumerate}
+	
+	\textbf{Best Response with Uncertainty}: A player can also determine their best response based on the expected payoffs, if they have beliefs about the probability of the other players' actions. For example, if Player 1 believes Player 2 is equally likely to choose Left or Right, Player 1's best response would be Down: $\E[D] = 4 \times \frac{1}{2} + 2 \times \frac{1}{2} = 3 > \frac{5}{2} = \E[U] = \E[M]$.
+	
+	\section{Best Responses in Soccer and Business Partnerships}
+	
+	\subsection*{Example: Soccer Penalty Kick}
+	Professor Polak analyzes a penalty kick as a game between a shooter and a goalie.
+	\begin{itemize}
+		\item \textbf{Shooter's Strategies}: Kick the ball to the left, right, or middle.
+		\item \textbf{Goalie's Strategies}: Dive to the left or right.
+	\end{itemize}
+	\begin{center}
+		\begin{tabular}{|c|c|c|}
+			\cline{2-3}
+			\multicolumn{1}{c|}{} & $l$ & $r$ \\
+			\hline
+			$L$ & 4, -4 & 9, -9 \\
+			\hline
+			$M$ & 6, -6 & 6, -6 \\
+			\hline
+			$R$ & 9, -9 & 4, -4 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	The interpretation of the table is that if the player shoots left and the goalkeeper dives left, there is a $40\%$ chance of scoring: $u_1 (L, l) = 4$. By analyzing the payoffs (the probability of scoring), it is shown that kicking the ball to the middle is never a best response for the shooter, regardless of what the goalie does. Therefore, a rational player should not choose this strategy. \\
+	
+	\textbf{Lesson}: never choose a strategy that is never a better response to any belief. \\
+	
+	\textbf{Formal Definition of Best Response (BR)}: A strategy $\hat{s_i}$ for player $i$ is a best response to the strategies $s_{-i}$ of the other players if it yields the highest possible payoff: $$u_i (\hat{s_i}, s_{-i}) \geq u_i (s_i', s_{-i}), \forall s_i' \in S_i$$
+	
+	or, equivalently, it is the strategy that maximizes player $i$'s payoff:
+	
+	$$\hat{s_i} = \arg\max_{s_i} u_i (s_i, s_{-i})$$
+	
+	Alternatively, the definition can be restated in terms of a player's belief about the other players' choices. A strategy $\hat{s_i}$ is a best response to a belief $p$ (a probability distribution over the other players' strategies $s_{-i}$) if it maximizes the player's expected payoff.
+	
+	$$\E[u_i (\hat{s_i}, s_{-i})] \geq \E[u_i (s_i, s_{-i})], \quad \forall s_i \in S_i$$
+	
+	Equivalently, the best response is the strategy that maximizes the expected payoff:
+	$$\hat{s_i} = \arg\max_{s_i} \E[u_i (s_i, s_{-i})]$$
+	
+	\subsection*{Example: Business Partnership}
+	A more complex application involves two business partners who must choose their individual effort levels to maximize their own payoffs.
+	\begin{itemize}
+		\item \textbf{Players}: Two agents in a joint project, sharing profits equally.
+		\item \textbf{Strategies}: Each agent chooses an effort level ($S_1$ and $S_2$), with higher effort incurring a higher cost.
+		\item \textbf{Payoffs}: An agent's payoff is half of the project's total profit minus their individual effort cost. The project's profit depends on the sum of their efforts and a "synergy" term.
+	\end{itemize}
+	To solve this problem, one can derive a \textit{best response function} for each player, which tells them their optimal effort level given the other player's effort. For example, the best response for Player 1 is a function of Player 2's effort level, $S_1 = f(S_2)$. Graphing these functions reveals that some strategies are never a best response. The point where the best response functions intersect represents a situation where each player is playing a best response to the other. This is a key concept that will be formally defined as a Nash Equilibrium.
+	
+	\section{Nash Equilibrium: Bad Fashion and Bank Runs}
+	
+	\subsection*{What is a Nash Equilibrium?}
+	A \textbf{Nash Equilibrium} is a state in a game where every player is playing their best response given the strategies of all other players. In a Nash Equilibrium, no player has a unilateral incentive to change their strategy, as doing so would not improve their payoff.
+	
+	\subsubsection*{Formal Definition of Nash Equilibrium}
+	
+	In a game with $N$ players, where each player $i$ chooses a strategy $s_i$ from their strategy set $S_i$, the combined strategies form a strategy profile $s = (s_1, ..., s_N)$. The payoff for each player $i$ is given by the payoff function $u_i(s_1, ..., s_N)$.
+	
+	A strategy profile $s^* = (s_1^*, ..., s_N^*)$ is a \textbf{Nash Equilibrium} (or, as it's commonly said, is in NE) if, for every player $i$, the following condition holds:
+	
+	$$u_i(s_i^*, s_{-i}^*) \ge u_i(s_i, s_{-i}^*), \ \forall s_i \in S_i$$
+	
+	\subsection*{Example: Bad Fashion}
+	This concept can be seen in a coordination game such as fashion trends. For example, a group of people might end up in a "bad" equilibrium where everyone is wearing unflattering clothes, like flared trousers. This happens because if everyone believes that everyone else will wear flared trousers, their best response is to wear them as well to avoid being a social outlier. This creates a self-enforcing, albeit suboptimal, equilibrium.
+	
+	\subsection*{Example: Bank Runs}
+	A bank run is another example of a coordination game that has both a "good" and a "bad" Nash Equilibrium.
+	\begin{itemize}
+		\item \textbf{Good Equilibrium}: Everyone believes the bank is solvent and keeps their money deposited. The bank can then continue to operate and lend money, sustaining the financial system. No individual has an incentive to withdraw their money, because doing so would not be a best response to the actions of others.
+		\item \textbf{Bad Equilibrium}: If people lose confidence in the bank, they rush to withdraw their money. Since a bank does not hold enough cash to cover all deposits at once, this panic leads to the bank's collapse, even if it was originally financially stable. This is a self-fulfilling prophecy; if people believe a bank will fail, their best response is to withdraw their money, which in turn causes the bank to fail.
+	\end{itemize}
+	In coordination games like these, communication and trust can play a crucial role in helping players move from a bad equilibrium to a good one.
+	
+	\textbf{Theorem}: No strictly dominated strategy exists in Nash Equilibrium. \\
+	
+	\textit{Proof}:
+	Assume a Nash Equilibrium $s^*$ contains a strictly dominated strategy $s_i^*$ for player $i$.
+	By definition of a strictly dominated strategy, there exists a strategy $s_i^C$ such that: $$u_i (s_i^C, s_{-i}) > u_i (s_i^*, s_{-i}), \ \forall s_{-i}$$    
+	This inequality must hold for the strategies in the assumed Nash Equilibrium, $s_{-i}^*$: $$u_i (s_i^C, s_{-i}^*) > u_i (s_i^*, s_{-i}^*)$$
+	This shows that player $i$ can unilaterally deviate from $s_i^*$ to $s_i^C$ and improve their payoff. This contradicts the definition of a Nash Equilibrium, proving the initial assumption false. \\
+	
+	\textbf{Theorem}: A weakly dominated strategy may exist in a Nash Equilibrium. \\
+	
+	\textit{Example}:
+	Consider the following game:
+
+	\begin{center}
+		\begin{tabular}{|c|c|c|}
+			\cline{2-3}
+			\multicolumn{1}{c|}{} & $l$ & $r$ \\
+			\hline
+			$U$ & 1, 1 & 0, 0 \\
+			\hline
+			$D$ & 0, 0 & 0, 0 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	In this game, the strategy $D$ is weakly dominated by $U$ for Player $1$. However, the strategy profile $(U, l)$, as well as $(D, r)$, is a Nash Equilibrium, as neither player has a strict incentive to unilaterally deviate.
+	
+	\section{Nash Equilibrium: Dating and Cournot}
+	
+	I will skip the dating example, as it resembles one from the previous lecture.
+	
+	\subsection*{The Cournot Duopoly Problem}
+	
+	The Cournot model describes a strategic situation where a small number of companies compete by producing an identical or homogeneous product. In this model, firms simultaneously choose their profit-maximizing output quantity, assuming their rivals will do the same. The total market quantity determines the market price, which is described by a linear inverse demand function. The notation used in the analysis is as follows:
+	
+	\begin{itemize}
+		\item $q_1, q_2$: The quantities produced by Firm 1 and Firm 2, respectively.
+		\item $Q$: The total market quantity, which is the sum of the quantities produced by each firm, i.e., $Q = q_1 + q_2$.
+		\item $P(Q)$: The inverse demand function, which determines the market price ($P$) as a function of the total quantity produced ($Q$).
+		\item $a$: The vertical intercept of the linear inverse demand function, representing the highest possible price for the product.
+		\item $b$: The slope of the linear inverse demand function.
+		\item $c$: The constant marginal cost per unit of production for each firm.
+	\end{itemize}
+	
+	\subsection*{Derivation of Best Response Functions}
+	
+	To find the best response for each firm, we need to determine the quantity that maximizes its profit, assuming the quantity of the other firm is fixed. This is achieved by setting a firm's marginal revenue equal to its marginal cost ($MR=MC$).
+	For Firm 1, the total revenue is $TR_1=P(Q)q_1=[a-b(q_1+q_2)]q_1=aq_1-bq_1^2-bq_2q_1$.
+	The marginal revenue, $MR_1$, is the derivative of total revenue with respect to its own quantity, $q_1$:
+	$$MR_1=\frac{\partial TR_1}{\partial q_1}=a-2bq_1-bq_2$$
+	Given that the cost function is linear, the marginal cost, $MC_1$, is a constant $c$. By setting $MR_1=MC_1$, we get $a-2bq_1-bq_2=c$. We then solve for $q_1$ in terms of $q_2$ to derive Firm 1's best response function:
+	$$q_1=BR_1(q_2)=\frac{a-c-bq_2}{2b}=\frac{a-c}{2b}-\frac{1}{2}q_2$$
+	Due to the perfect symmetry of the firms' cost and demand functions, Firm 2's best response function is identical:
+	$$q_2=BR_2(q_1)=\frac{a-c}{2b}-\frac{1}{2}q_1$$
+	The negative slope of these best response functions, $-\frac{1}{2}$, indicates that the firms' strategies are \textbf{strategic substitutes}: as one firm increases its output, the other firm's optimal response is to decrease its own output to maximize profit.
+	
+	\subsection*{Finding the Nash Equilibrium}
+	
+	The Cournot-Nash Equilibrium is the unique strategy profile $(q_1^*,q_2^*)$ where each firm's quantity is a best response to the other's quantity. To find this equilibrium, we solve the system of the two best response functions simultaneously. We can substitute the expression for $q_2$ from Firm 2's best response function into Firm 1's:
+	$$q_1^* = \frac{a - c}{2b} - \frac{1}{2} \left( \frac{a - c}{2b} - \frac{1}{2}q_1^* \right)$$
+	Solving this equation for $q_1^*$ yields:
+	$$q_1^* = \frac{a - c}{2b} - \frac{a - c}{4b} + \frac{1}{4}q_1^*$$
+	$$\frac{3}{4}q_1^* = \frac{a - c}{4b}$$
+	$$q_1^* = \frac{a - c}{3b}$$
+	By symmetry, the equilibrium quantity for Firm 2 is the same: $q_2^*=\frac{a-c}{3b}$.
+	With the equilibrium quantities determined, we can find the total quantity, market price, and profit at equilibrium.
+	
+	\begin{itemize}
+		\item Total equilibrium quantity: $Q^*=q_1^*+q_2^*=\frac{2(a-c)}{3b}$
+		\item Equilibrium price: $P^*=a-bQ^*=a-b(\frac{2(a-c)}{3b})=\frac{a+2c}{3}$
+		\item Equilibrium profit for each firm: $\pi_i^*=(P^*-c)q_i^*=(\frac{a-c}{3})(\frac{a-c}{3b})=\frac{(a-c)^2}{9b}$
+	\end{itemize}
+	
+	This unique strategy profile constitutes a Nash Equilibrium because it is a self-enforcing outcome. Each firm's quantity is its profit-maximizing choice, given the other firm's choice. If either firm were to unilaterally deviate from its equilibrium quantity, its profits would decrease.
+	
+	\subsection*{Cournot Equilibrium vs. Other Market Outcomes}
+	To understand the significance of the Cournot-Nash Equilibrium, we can compare it to two market extremes: a monopoly and perfect competition.
+	\begin{itemize}
+		\item \textbf{Collusive Outcome (Monopoly)}: The two firms act as a single monopolist to maximize their joint profits. This yields a total quantity of $Q_M=\frac{a-c}{2b}$ and a price of $P_M=\frac{a+c}{2}$. This outcome is not a stable Nash Equilibrium, as each firm has an incentive to produce more than its assigned share to increase its individual profit.
+		\item \textbf{Perfectly Competitive Outcome}: In this benchmark for social efficiency, the price is driven down to the marginal cost ($P_{PC}=c$), and the total quantity produced is $Q_{PC}=\frac{a-c}{b}$. At this point, the firms make zero economic profit.
+	\end{itemize}
+	
+	The Cournot-Nash Equilibrium sits between these two extremes. The equilibrium price is lower than the monopoly price but higher than the competitive price ($P_{PC}<P^*<P_M$), and the total quantity produced is greater than the monopoly quantity but less than the perfectly competitive quantity ($Q_M<Q^*<Q_{PC}$).
+	The following table summarizes the comparison:
+	
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\cline{2-4}
+			\multicolumn{1}{c|}{} & \textbf{Monopoly} & \textbf{Cournot Duopoly} & \textbf{Perfect Competition} \\
+			\hline
+			\textbf{Total Quantity (Q)} & $\frac{a-c}{2b}$ & $\frac{2(a-c)}{3b}$ & $\frac{a-c}{b}$ \\
+			\hline
+			\textbf{Market Price (P)} & $\frac{a+c}{2}$ & $\frac{a+2c}{3}$ & $c$ \\
+			\hline
+			\textbf{Total Profit ($\Pi$)} & $\frac{(a-c)^2}{4b}$ & $\frac{2(a-c)^2}{9b}$ & $0$ \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	The Cournot model provides a nuanced and realistic representation of imperfectly competitive markets, demonstrating how even limited competition can move the market toward an outcome that is more favorable to consumers than a pure monopoly.
+	
+	\section{Nash Equilibrium: Shopping, Standing and Voting on a Line}
+	
+	Professor Polak explains how game theory can model strategic situations in economics and politics. The focus shifts from the quantity-based Cournot model to a deeper look at price competition and the strategic choices of political candidates.
+	
+	\subsection*{Bertrand Duopoly: A Game of Price Competition}
+	
+	The \textit{Bertrand model} assumes that firms compete by setting prices rather than quantities. This model assumes that the firms sell the same product and have no capacity limits.
+	
+	The main idea of this model is the \textit{Bertrand Paradox}. In a market with just two firms, price competition can drive the market price down to the level of marginal cost, which means zero profit for both firms. This happens because if a firm sets its price even a little above its cost, its rival has an incentive to sell for less. This creates pressure to keep lowering prices until the price hits the marginal cost, $P = MC$.
+	
+	This result is striking because it is the same as a perfectly competitive market, even with only two firms. The big difference between the Cournot and Bertrand models shows a key point in game theory: the choice of what to compete on (quantity vs. price) completely changes the game and its outcome. While quantity competition lets firms keep some market power, price competition in the Bertrand model becomes a brutal race to the bottom.
+	
+	The Bertrand Paradox, however, depends on strong assumptions that are not often true in the real world. For example, if firms have limited production capacity or if products are not exactly the same, the paradox does not hold.
+	
+	\subsection*{The Hotelling Model: Competition with Product Differentiation}
+	
+	To deal with the limitations of the Bertrand model, Professor Polak introduces the \textit{Hotelling model}, which adds product differentiation to the analysis. This model pictures the market as a line with two firms at different spots. Customers are spread evenly along this line, and their total cost is the product's price plus a "transportation cost," which is a way of talking about the trouble of buying a product that is not what they want most.
+	
+	Because of these transportation costs, firms can charge prices above their marginal cost and still keep customers, avoiding the zero-profit outcome of the Bertrand model. A key finding of this model is the \textit{Principle of Maximum Differentiation}. To avoid fierce price competition and make a profit, firms have a reason to move away from each other and towards the ends of the market. This helps explain why companies selling similar goods are not all in one spot and why brands spend a lot on marketing to make their products different.
+	
+	\subsection*{Example: The Candidate-Voter Model with Strategic Entry}
+	
+	The lecture applies the spatial model to politics to analyze the strategic decisions of political candidates. While the \textit{Median-Voter Theorem} says that candidates will move to the position of the median voter, this new model adds a key choice: should a person even run for office?
+	
+	The analysis shows that the threat of a new candidate entering the race forces existing candidates to take more middle-of-the-road positions. This shows that the credible threat of what a potential player might do can limit what the current players do.
+	
+	The model also explains the \textit{spoiler effect} in politics. When a third candidate enters the race from one of the extremes, they can split the votes on that side. This can lead to the victory of a candidate from the other party. This shows a main idea of game theory: acting on your own can lead to a bad result for your group.
+	
+	\section{Nash Equilibrium: Location, Segregation, and Randomization}
+	
+	This section looks at two different but related uses of game theory: a model of social segregation and the strategic importance of being random.
+	
+	\subsection*{Schelling's Model of Segregation: A Paradox of Preferences}
+	
+	Professor Polak presents a powerful model by Nobel laureate Thomas Schelling that shows how complex social issues, like segregation, can come from simple individual preferences. The model assumes that people have a minimal preference to live near others who are like them. For example, a person might be happy as long as at least $50\%$ of their neighbors are of their own "type."
+	
+	The main finding of this model is its "paradoxical" outcome. Even with this minimal preference, the model consistently produces a completely segregated society. The model has multiple Nash Equilibria, including a desirable state of perfect integration and "bad" equilibria where the two groups are completely separate. The integrated state is very unstable; a small change can start a chain reaction that leads to total separation.
+	
+	Schelling's work shows that seemingly harmless individual preferences can lead to big and bad social outcomes. This idea helps us understand real-world segregation without assuming people are prejudiced. It also suggests that policies for integration can work by creating a more integrated starting point to counter the natural tendency toward segregation.
+	
+	\subsection*{Randomization and Mixed Strategies}
+	The final part of the lecture formalizes the concept of unpredictability as a strategic tool, particularly in games where there is no single best action, and a player's optimal choice depends entirely on the opponent's action. In games like Rock, Paper, Scissors, any predictable strategy, such as always choosing "Rock," is exploitable and will lead to a loss. To play optimally, a player must be unpredictable.
+	
+	This leads to the formal definition of a \textit{mixed strategy}, which is a probability distribution over a player's set of pure strategies. A player's payoff from a mixed strategy is their expected payoff, which is a weighted average of the payoffs from each pure strategy.
+	
+	A \textit{Mixed-Strategy Nash Equilibrium (MSNE)} is a profile of mixed strategies where no player can increase their expected payoff by unilaterally changing their mixed strategy. The central condition for an MSNE is that if a player is randomizing between two or more pure strategies, they must be indifferent between them. This means that each of the pure strategies in the mix must yield the exact same expected payoff.
+	
+	The lecture uses the classic Rock, Paper, Scissors game to illustrate this concept. The payoff matrix for this game is as follows:
+	\begin{table}[h!]
+		\centering
+		\caption{Rock, Paper, Scissors Payoff Matrix}
+		\label{tab:rps_ch8}
+		\begin{tabular}{|c|c|c|c|}
+			\cline{2-4}
+			\multicolumn{1}{c|}{Player 1} & Rock ($p_1$) & Paper ($p_2$) & Scissors ($p_3$) \\
+			\hline
+			Rock ($q_1$) & (0, 0) & (-1, 1) & (1, -1) \\
+			\hline
+			Paper ($q_2$) & (1, -1) & (0, 0) & (-1, 1) \\
+			\hline
+			Scissors ($q_3$) & (-1, 1) & (1, -1) & (0, 0) \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	By applying the indifference condition, we can solve for the unique MSNE. Let Player 1's probabilities be $(q_1,q_2,q_3)$ and Player 2's probabilities be $(p_1,p_2,p_3)$. For Player 2 to be willing to randomize between all three of their pure strategies, they must be indifferent between them. This means their expected payoff from choosing Rock must equal their expected payoff from choosing Paper, which must also equal their expected payoff from choosing Scissors.
+	$$ \E[u_2(\text{Rock})] = \E[u_2(\text{Paper})] = \E[u_2(\text{Scissors})] $$
+	This translates to the following system of equations:
+	$$0 \cdot q_1 + 1 \cdot q_2 - 1 \cdot q_3 = -1 \cdot q_1 + 0 \cdot q_2 + 1 \cdot q_3 = 1 \cdot q_1 - 1 \cdot q_2 + 0 \cdot q_3$$
+	Solving this system, combined with the condition $\sum q_i = 1$, reveals that the unique equilibrium is $(q_1, q_2, q_3) = (1/3, 1/3, 1/3)$. The same logic applies to Player 2, yielding a symmetric solution. This demonstrates a crucial analytical leap: the indifference condition transforms an a priori complex problem of unpredictability into a solvable system of equations, proving that a stable outcome can exist even in games without a pure-strategy Nash Equilibrium.
+	
+	Mixed strategies are not just a theoretical concept; they are essential for understanding many real-world strategic situations. They explain the unpredictability of a soccer penalty kick, military strategy, and even everyday interactions.
+	
+	\section{Mixed Strategies in Theory and Tennis}
+	
+	A \textbf{Mixed Strategy} $p_i$ is a randomization over $i$'s strategies. $p_i (s_i)$ is the probability that player $i$ plays $s_i$ given that he's mixing using $p_i$. $p_i (s_i) = 1 \implies s_i$ is a pure strategy. The payoff from a mixed strategy is the expected payoff, which is a weighted average of the expected payoffs of each pure strategy in the mix. 
+	
+	A key lesson for mixed strategies is that if a player is using a mixed strategy as a best response, then each of the pure strategies assigned a positive probability in that mix must also be a best response and must yield the same expected payoff. If one pure strategy in the mix had a higher payoff, the player could improve their outcome by only playing that strategy. This simplifies finding mixed strategy Nash equilibrium.
+	
+	A mixed strategy profile $(p_1^*, p_2^*, \dots, p_N^*)$ is a mixed strategy Nash Equilibrium if, for each player $i$, $p_i^*$ is a best response to player $i$ to $p_{-i}^*$.
+	
+	Let's consider a tennis example, a passing shot game between Venus and Serena Williams. Venus is the row player and Serena is the column player. Venus can hit the ball to Serena's left $(L)$ or right $(R)$, and Serena can lean left or right to defend. The payoff matrix is as follows:
+	
+	\begin{center}
+		\begin{tabular}{c|c|c|} 
+			& \multicolumn{1}{c}{Serena $(L)$} & \multicolumn{1}{c}{Serena $(R)$} \\
+			\cline{2-3}
+			Venus $(L)$ & 50, 50 & 80, 20 \\
+			\cline{2-3}
+			Venus $(R)$ & 90, 10 & 20, 80 \\
+			\cline{2-3}
+		\end{tabular}
+	\end{center}
+	
+	In this game, there is no pure strategy Nash equilibrium. We must look for a mixed strategy equilibrium. Let's denote Venus's mix as $(p, 1-p)$ for playing $(L, R)$ and Serena's mix as $(q, 1-q)$ for playing $(L, R)$.
+	
+	To find Serena's mix, we look at Venus's payoffs. For Venus to be willing to mix, her expected payoff from playing Left must equal her expected payoff from playing Right.
+	
+	\begin{align*}
+		\text{Expected Payoff (Venus chooses L)} &= 50q + 80(1-q) \\
+		\text{Expected Payoff (Venus chooses R)} &= 90q + 20(1-q)
+	\end{align*}
+	
+	Setting these equal:
+	\begin{align*}
+		50q + 80 - 80q &= 90q + 20 - 20q \\
+		60 &= 100q \\
+		q &= 0.6
+	\end{align*}
+	
+	So, Serena's equilibrium strategy is to lean left $60\%$ of the time and right $40\%$ of the time. Doing the same steps for Venus, we get $p=0.7$, so her equilibrium strategy is to hit left $70\%$ of the time and right $30\%$ of the time. The mixed strategy Nash equilibrium is $(0.7L, 0.3R)$ for Venus and $(0.6L, 0.4R)$ for Serena.
+	
+	Now, let's consider a comparative statics exercise. Suppose Serena improves her backhand volley, changing the payoff in the (Venus $L$, Serena $L$) box from $(50, 50)$ to $(30, 70)$.
+	
+	\begin{center}
+		\begin{tabular}{c|c|c|} 
+			& \multicolumn{1}{c}{Serena $(L)$} & \multicolumn{1}{c}{Serena $(R)$} \\
+			\cline{2-3}
+			Venus $(L)$ & 30, 70 & 80, 20 \\
+			\cline{2-3}
+			Venus $(R)$ & 90, 10 & 20, 80 \\
+			\cline{2-3}
+		\end{tabular}
+	\end{center}
+	
+	Let's find Serena's new equilibrium mix, $q'$. We again set Venus's expected payoffs equal:
+	\begin{align*}
+		30q' + 80(1-q') &= 90q' + 20(1-q') \\
+		30q' + 80 - 80q' &= 90q' + 20 - 20q' \\
+		60 &= 120q' \\
+		q' &= 0.5
+	\end{align*}
+	
+	Serena now leans left $50\%$ of the time, which is less often than before. The strategic effect - that Venus will hit to Serena's left less often due to her improved backhand - dominates the direct effect of Serena being tempted to lean left more often.
+	
+	For completeness, Venus's new mix $p'$ is found by setting Serena's new expected payoffs equal:
+	\begin{align*}
+		70p' + 10(1-p') &= 20p' + 80(1-p') \\
+		70p' + 10 - 10p' &= 20p' + 80 - 80p' \\
+		120p' &= 70 \\
+		p' &= \frac{7}{12} \approx 0.58
+	\end{align*}
+	
+	Venus now hits to Serena's left less often ($58\%$ vs $70\%$), which is consistent with the strategic effect.
+	
+	\section{Mixed Strategies in Baseball, Dating and Paying Your Taxes}
+	
+	While the calculation of a Mixed-Strategy Nash Equilibrium (MSNE) is a technical exercise, its real power comes from its interpretation and application. The concept can be understood in several ways, each providing a different lens through which to view strategic behavior.
+	
+	\subsection*{Interpretation 1: Literal Randomization}
+	The most direct interpretation is that players literally and consciously randomize their actions to be unpredictable. This view is most plausible in strictly competitive, zero-sum games where unpredictability is a primary strategic goal. The player's goal is to prevent the opponent from correctly guessing their next move, and a mixed strategy is the formal way to achieve this. The example concerned security measures U.S. airports adopted after 9/11. They could not install luggage‑screening machines in every airport because it was too expensive. If they made the locations of those machines public, terrorists would simply use airports without them, so the airports had to randomize the machines' placement.
+	
+	\subsection*{Interpretation 2: Players' Beliefs about Each Other's Actions}
+	A more subtle interpretation is that an MSNE represents a state of strategic uncertainty, reflecting each player's beliefs about the other's actions. In this view, players are not necessarily rolling dice. Instead, a mixed strategy profile $(p_1^*, p_2^*)$ is an equilibrium because player 1's strategy is a best response to their belief that player 2 is playing their equilibrium mix, and vice-versa. The indifference condition is key: my belief about your strategy makes me indifferent, so my mix is a best response. Your belief about my strategy makes you indifferent, so your mix is also a best response. This interpretation is more fitting for games like the "Battle of the Sexes", where literal randomization seems odd, but strategic uncertainty about the other's choice is central to the problem.
+	
+	\subsection*{Policy Example: The Tax Evasion Game}
+	The interpretations of mixed strategies, particularly the population view, have powerful policy implications. Consider the tax evasion game, where the government wants to reduce the proportion of citizens who cheat. The equilibrium probability of a citizen cheating ($p$) and the IRS auditing ($q$) are given by:
+	$$ p = \frac{C}{T+F} \quad \text{and} \quad q = \frac{T}{T+F} $$
+	where $T$ is the tax owed, $F$ is the fine, and $C$ is the cost of an audit.
+	
+	A policymaker can use this model to determine the most effective way to reduce cheating ($p$). One option is to increase the audit rate ($q$), but audits are costly. The model reveals a more powerful and efficient tool: the fine ($F$). As the fine $F$ increases, the denominator $(T+F)$ grows, causing both the equilibrium cheating rate ($p$) and the necessary audit rate ($q$) to fall.
+	
+	The policy conclusion is clear and counter-intuitive: it is more cost-effective to deter tax evasion by imposing a very large fine than by conducting more audits. A sufficiently high penalty makes cheating so unattractive that the government can maintain a low cheating rate while also auditing less frequently, saving public resources. The credible threat of a large fine does the deterrent work.
+	
+	\section{Evolutionary Stability: Cooperation, Mutation and Equilibrium}
+	
+	A new approach to strategic interaction shifts from rational decision-making to a model of hardwired behaviors that replicate through a population, similar to genes.
+	This framework, which focuses on symmetric, two-player games within a large population, assumes individuals are randomly paired to interact. A strategy's success is measured by its average payoff, which determines its "reproductive fitness." A strategy with a higher payoff will increase in frequency within the population. This dynamic, rather than conscious choice, explains how stable behaviors can emerge.
+	
+	A strategy $\hat{S}$ is an \textbf{Evolutionary Stable Strategy (ESS)} if it can resist invasion by a small group of "mutants" playing a different strategy, $S'$. Because the mutant group is small, they will almost always interact with a member of the dominant $\hat{S}$ population. A strategy is an ESS if, for any possible mutation $S'$, the average payoff of the mutants is less than the average payoff of the original population.
+	
+	For a pure strategy $\hat{S}$ to be an Evolutionary Stable Strategy, it must satisfy two conditions:
+	\begin{enumerate}
+		\item \textit{Nash Equilibrium}. The strategy pair $(\hat{S}, \hat{S})$ must be a symmetric Nash Equilibrium, meaning that for any alternative strategy $S'$, $u(\hat{S}, \hat{S}) \ge u(S', \hat{S})$.
+		\item\textit{The Tie-Breaking Rule}. If the first condition holds with equality for some $S'$ (i.e., $u(\hat{S}, \hat{S}) = u(S', \hat{S})$), then $\hat{S}$ must perform strictly better against the mutant strategy than the mutant strategy performs against itself: $u(\hat{S}, S') > u(S', S')$.
+	\end{enumerate}
+	
+	A special case is a strict Nash Equilibrium, where $u(\hat{S}, \hat{S}) > u(S', \hat{S})$ for all $S' \ne \hat{S}$. Any strategy that is part of a strict symmetric Nash Equilibrium is always an ESS, as the tie-breaking rule is not needed.
+	
+	\subsection*{Example: The Driving Convention}
+	
+	A classic example of ESS is the choice of driving on the left or the right side of the road. This is a symmetric game where both driving on the left and driving on the right are stable outcomes. Both $(L, L)$ and $(R, R)$ are strict Nash Equilibria, and therefore, both $L$ and $R$ are Evolutionary Stable Strategies.
+	
+	This shows that a game can have multiple evolutionarily stable outcomes. The specific outcome a society adopts, such as driving on the left in England and Japan versus driving on the right everywhere else, is a matter of historical chance. This phenomenon also highlights a key distinction: evolutionary stability does not guarantee efficiency. A population can get "stuck" in a stable but sub-optimal equilibrium. Professor Polak refers to this as "unintelligent design", where a sub-optimal social convention persists because it is an ESS, a product of a blind evolutionary process rather than rational design.
+	
+	\section{Evolutionary Stability: Social Convention, Aggression, and Cycles}
+	
+	This section builds on the concept of an Evolutionary Stable Strategy (ESS) by applying it to three foundational games: a simple social convention, a model of animal aggression, and the classic Rock, Paper, Scissors. These examples reveal that evolutionary dynamics can lead not only to stable, predictable outcomes but also to persistent, cyclical patterns of behavior.
+	
+	\subsection*{The Hawk–Dove Game: A Model of Aggression}
+	The Hawk–Dove game models a situation where two individuals compete for a resource of value $V$. Each can adopt one of two strategies: \emph{Hawk}, representing aggressive behavior, or \emph{Dove}, representing passive behavior. The cost of conflict (injury) is denoted by $C$.
+	
+	\begin{itemize}
+		\item \textbf{Hawk vs.\ Hawk}: Both fight, and each has a $50\%$ chance of winning the resource $V$ and a $50\%$ chance of losing and incurring the cost $C$. The expected payoff is $\dfrac{V-C}{2}$.
+		\item \textbf{Hawk vs.\ Dove}: The Hawk takes the resource unopposed ($V$), and the Dove retreats ($0$).
+		\item \textbf{Dove vs.\ Dove}: They share the resource peacefully, each receiving $\dfrac{V}{2}$.
+	\end{itemize}
+	
+	The payoff matrix for this symmetric game is:
+	\begin{center}
+		\begin{tabular}{|c|c|c|}
+			\cline{2-3}
+			\multicolumn{1}{c|}{} & \textbf{Hawk} & \textbf{Dove} \\
+			\hline
+			\textbf{Hawk} & $\dfrac{1}{2} (V - C),\ \dfrac{1}{2} (V - C)$ & $V,\ 0$ \\
+			\hline
+			\textbf{Dove} & $0,\ V$ & $\dfrac{1}{2} V,\ \dfrac{1}{2} V$ \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	The analysis depends on the relationship between the value of the resource and the cost of fighting.
+	
+	\begin{description}
+		\item[Case 1: $V>C$ (Low cost of fighting)] In this scenario, the value of the resource outweighs the potential cost of injury. Playing Hawk is a strictly dominant strategy because $u(\text{Hawk},\text{Hawk})=\dfrac{V-C}{2}>0=u(\text{Dove},\text{Hawk})$ and $u(\text{Hawk},\text{Dove})=V>\dfrac{V}{2}=u(\text{Dove},\text{Dove})$. Since $(\text{Hawk},\text{Hawk})$ is a strict symmetric Nash equilibrium, \textbf{Hawk is the unique ESS}. A population of aggressive individuals cannot be invaded by passive mutants.
+		
+		\item[Case 2: $V<C$ (High cost of fighting)] Here, the cost of conflict is greater than the prize. There is no pure-strategy ESS. A population of Doves would be successfully invaded by a Hawk mutant (who would get $V$ every time), and a population of Hawks would be invaded by a Dove mutant (who would get $0$, which is better than the negative payoff of $\dfrac{V-C}{2}$).
+		
+		This leads to a unique symmetric mixed-strategy Nash equilibrium where individuals play Hawk with probability $p=\dfrac{V}{C}$. This mixed strategy is an \textbf{Evolutionary Stable Strategy}. It corresponds to a stable population polymorphism where the proportion of individuals hardwired to be Hawks is exactly $\dfrac{V}{C}$. If the proportion of Hawks were to rise above this, their average payoff would decrease (due to more costly fights), and the Dove strategy would become more successful, restoring the equilibrium.
+	\end{description}
+	
+	\subsection*{Rock, Paper, Scissors: Evolutionary Cycles}
+	The game of Rock, Paper, Scissors (RPS) provides a final, crucial insight into evolutionary dynamics. As shown previously, the game has no pure-strategy Nash equilibrium, and its unique symmetric mixed-strategy Nash equilibrium is to play each strategy with equal probability, $(1/3,1/3,1/3)$.
+	
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\cline{2-4}
+			\multicolumn{1}{c|}{} & \textbf{Rock} & \textbf{Paper} & \textbf{Scissors} \\
+			\hline
+			\textbf{Rock} & $(0,0)$ & $(-1,1)$ & $(1,-1)$ \\
+			\hline
+			\textbf{Paper} & $(1,-1)$ & $(0,0)$ & $(-1,1)$ \\
+			\hline
+			\textbf{Scissors} & $(-1,1)$ & $(1,-1)$ & $(0,0)$ \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	Is the mixed strategy $p^*=(1/3,1/3,1/3)$ an ESS? To check, test it against a mutant pure strategy, for example $S'=\text{Rock}$. For $p^*$ to be an ESS (under the usual tie-breaking condition for mixed strategies), it must hold that $u(p^*,S')\ge u(S',S')$, with strict inequality when payoffs are equal among strategies used with positive probability.
+	
+	Compute the payoffs:
+	\begin{itemize}
+		\item The payoff of the mutant playing against itself is:
+		\[
+		u(S',S')=u(\text{Rock},\text{Rock})=0.
+		\]
+		\item The payoff of the incumbent population playing against the mutant is the expected payoff:
+		\begin{align*}
+			u(p^*,S') &= \tfrac{1}{3}u(\text{Rock},\text{Rock})+\tfrac{1}{3}u(\text{Paper},\text{Rock})+\tfrac{1}{3}u(\text{Scissors},\text{Rock})\\
+			&= \tfrac{1}{3}(0)+\tfrac{1}{3}(1)+\tfrac{1}{3}(-1)=0.
+		\end{align*}
+	\end{itemize}
+	
+	Thus $u(p^*,S')=u(S',S')$, so the strict condition for ESS is not satisfied. Therefore, the mixed strategy $(1/3,1/3,1/3)$ is \textbf{not an Evolutionary Stable Strategy}.
+	
+	The population will not settle into a stable state; instead it can exhibit cyclical dynamics:
+	\begin{enumerate}
+		\item A population dominated by Rock players is vulnerable to invasion by Paper mutants.
+		\item As Paper increases, Scissors mutants are favored.
+		\item As Scissors increase, Rock is favored again.
+	\end{enumerate}
+	This perpetual cycle, where no single strategy or stable mix can dominate, is common in systems with intransitive interactions (A beats B, B beats C, C beats A).
+
+	\section{Sequential Games: Moral Hazard, Incentives, and Hungry Lions}
+	
+	This section transitions from simultaneous-move games to \textbf{sequential games}, where players make decisions in a specified order, and later players have information about the choices made by earlier players. The primary tool for analyzing these games is \textbf{backward induction}, a powerful method for predicting rational outcomes by reasoning from the end of the game to the beginning.
+	
+	\subsection*{Game Trees and Backward Induction}
+	Sequential games are represented using \textbf{game trees}. A tree consists of:
+	\begin{itemize}
+		\item \textbf{Nodes}: Points where a player makes a decision.
+		\item \textbf{Edges} (or Branches): Lines representing the actions a player can take.
+		\item \textbf{End Nodes}: The terminal points of the tree where the payoffs for each player are listed.
+	\end{itemize}
+	The core principle for solving these games is to anticipate the actions of other players by putting yourself in their shoes. The formal process for this is \textbf{backward induction}, which involves starting at the final decision nodes of the game and determining the optimal choice for the player at each of those nodes. Once these choices are known, we can "prune" the branches that a rational player would not choose. We then move backward to the next-to-last decision nodes and repeat the process, assuming that the subsequent players will make their rational choices. This continues until we reach the first move of the game, thereby revealing the game's likely path and outcome.
+	
+	\subsection*{The Investor-Entrepreneur Game: A Case of Moral Hazard}
+	Professor Polak illustrates these concepts with a simple game analogous to a lender-borrower or venture capitalist-entrepreneur relationship.
+	\begin{itemize}
+		\item \textbf{Players}: Player 1 (Investor) and Player 2 (Entrepreneur).
+		\item \textbf{Setup}: The Investor can choose to invest \$1 or \$3, or not invest at all (\$0). If an investment is made, the project generates a return. The Entrepreneur then decides whether to "Match" (repay the investor, sharing the profits) or "Take" (abscond with the initial investment).
+		\item \textbf{Payoffs}: The game tree below shows the net payoffs. For example, if the investor puts in \$3 and the entrepreneur matches, the total pot becomes \$8. The investor gets back their \$3 plus a \$3 profit (total \$6), and the entrepreneur gets a \$2 profit.
+	\end{itemize}
+	\begin{center}
+		\begin{tabular}{m{2cm} m{2cm} m{4cm} c}
+			\toprule
+			\textbf{Player 1's Move} & \textbf{Player 2's Move} & \textbf{Outcome} & \textbf{Payoffs (P1, P2)} \\
+			\midrule
+			Invest \$0 & - & No project & (0, 0) \\
+			\midrule
+			\centering Invest \$1 & Match & Project succeeds & (1, 1.50) \\
+			\cmidrule{2-4}
+			& Take & Entrepreneur absconds & (-1, 1) \\
+			\midrule
+			\centering Invest \$3 & Match & Project succeeds & (3, 2) \\
+			\cmidrule{2-4}
+			& Take & Entrepreneur absconds & (-3, 3) \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	Applying backward induction:
+	\begin{enumerate}
+		\item \textbf{If Player 1 invests \$3}: Player 2 compares the payoff from Matching (\$2) with the payoff from Taking (\$3). A rational Player 2 will \textbf{Take}.
+		\item \textbf{If Player 1 invests \$1}: Player 2 compares the payoff from Matching (\$1.50) with the payoff from Taking (\$1). A rational Player 2 will \textbf{Match}.
+		\item \textbf{Player 1's Decision}: Knowing this, Player 1 anticipates the outcomes. Investing \$3 will lead to a payoff of -3. Investing \$1 will lead to a payoff of 1. Investing \$0 gives a payoff of 0. The best choice for Player 1 is to \textbf{invest \$1}.
+	\end{enumerate}
+	The predicted outcome is (Invest \$1, Match), with payoffs (1, 1.50). This illustrates a common problem known as \textbf{Moral Hazard}, where one party (the agent) has an incentive to act in a way that is not in the best interest of the other party (the principal). The socially optimal outcome, (Invest \$3, Match) with payoffs (3, 2), is not achievable because the entrepreneur has an incentive to default on the larger investment.
+	
+	\subsection*{Commitment and Solving Moral Hazard}
+	A key theme in sequential games is \textbf{commitment} - an action that credibly restricts a player's future choices, thereby altering the incentives of other players. William the Conqueror burning his ships before the Battle of Hastings is a classic example. By removing the option of retreat, he committed his army to fighting to the death, which in turn demoralized the opposing army and made them less willing to fight. For a commitment to be effective, it must be irreversible and, crucially, it must be observed by the other players.
+	
+	In the context of moral hazard, several strategies can be employed to align incentives and achieve a better outcome:
+	\begin{itemize}
+		\item \textbf{Staged Financing}: Releasing funds in smaller increments, contingent on progress. This turns a single game into a repeated game, where the threat of withholding future funds incentivizes good behavior.
+		\item \textbf{Incentive Design}: Altering the contract's payoff structure. For example, if the entrepreneur's payoff for matching a \$3 investment was changed from \$2 to \$3.10, their incentive would shift, making "Match" the rational choice.
+		\item \textbf{Collateral}: Requiring the borrower to pledge an asset that is forfeited upon default. This introduces a significant negative payoff for the "Take" strategy, making repayment the more attractive option. Collateral serves as a powerful commitment device that solves the moral hazard problem by making the borrower's promise to repay credible.
+	\end{itemize}
+
+	\section{Backward Induction: Commitment, Spies, and First-Mover Advantages}
+	
+	This section explores the strategic implications of moving first in a sequential game, using the \textit{Stackelberg model} of duopoly as a central example. Unlike the simultaneous Cournot model, where firms choose output levels at the same time, the Stackelberg model designates one firm as the "leader" and the other as the "follower." This sequential structure reveals the profound importance of commitment and how the timing of decisions can fundamentally alter market outcomes.
+	
+	\subsection*{The Stackelberg Model of Quantity Leadership}
+	In the Stackelberg model, Firm 1 (the leader) chooses its quantity, $q_1$, first. Firm 2 (the follower) observes $q_1$ and then chooses its own quantity, $q_2$. To solve this game, we use backward induction.
+	
+	\begin{enumerate}
+		\item \textbf{The Follower's Decision}: We start with Firm 2. For any given quantity $q_1$ chosen by the leader, Firm 2's problem is to choose the quantity $q_2$ that maximizes its own profit. This is nothing more than Firm 2's best response function, which we already derived in the Cournot analysis: $$q_2 = BR_2(q_1) = \frac{a-c}{2b} - \frac{1}{2}q_1$$
+		\item \textbf{The Leader's Decision}: Firm 1, moving first, anticipates that Firm 2 will react according to this best response function. Therefore, Firm 1's goal is to choose the quantity $q_1$ that maximizes its own profit, knowing that its choice of $q_1$ will determine Firm 2's choice of $q_2$. The leader essentially substitutes the follower's best response function into its own profit equation and then maximizes with respect to $q_1$.
+	\end{enumerate}
+	
+	This optimization leads to a new equilibrium. Because the firms' products are \textbf{strategic substitutes} - meaning that as one firm increases its output, the other's optimal response is to decrease its output—the leader has an incentive to "overproduce" relative to the Cournot equilibrium. By credibly committing to a large quantity, the leader forces the follower to scale back its own production.
+	
+	\subsection*{Comparing Stackelberg and Cournot Equilibria}
+	The mathematical solution shows that in the Stackelberg equilibrium, the leader produces more than its Cournot quantity, while the follower produces less.
+	$$ q_1^{Stackelberg} = \frac{a-c}{2b} > \frac{a-c}{3b} = q_1^{Cournot} $$
+	$$ q_2^{Stackelberg} = \frac{a-c}{4b} < \frac{a-c}{3b} = q_2^{Cournot} $$
+	This strategic interaction results in a higher total market quantity and a lower market price compared to the Cournot outcome. The consequences are:
+	\begin{itemize}
+		\item \textbf{Leader's Profit}: Increases. The leader is better off because it could have chosen its Cournot quantity but made a different, more profitable choice.
+		\item \textbf{Follower's Profit}: Decreases. The follower is squeezed out of the market by the leader's aggressive strategy and also faces a lower price.
+		\item \textbf{Consumer Surplus}: Increases. Consumers benefit from the higher total output and lower prices.
+	\end{itemize}
+	This demonstrates a clear \textbf{first-mover advantage} in the context of quantity competition.
+	
+	\subsection*{The Crucial Role of Commitment and Information}
+	The first-mover advantage is not automatic; it hinges on the leader's ability to make a \textbf{credible commitment}. Simply announcing a high production level is not enough. The commitment must be irreversible, for example, through a publicly visible investment in a large factory (a sunk cost).
+	
+	Interestingly, information can play a paradoxical role. Consider a scenario where Firm 2 has a spy in Firm 1's boardroom. If Firm 1 knows about the spy, it can exploit this information leak. By deliberately choosing a large production capacity, Firm 1 can ensure the spy relays this information to Firm 2. This knowledge forces Firm 2 to accept Firm 1's move as a commitment, effectively placing Firm 1 in the advantageous leader position. In this case, Firm 2's extra information (from the spy) ends up hurting its own profits.
+	
+	It is a common misconception that moving first is always advantageous. In games like Rock, Paper, Scissors, there is a clear \textbf{second-mover advantage}. In other situations, such as dividing a cake using the "I cut, you choose" method, there is neither a first nor a second-mover advantage. The strategic value of timing is entirely dependent on the structure of the game itself.
+	
+	\section{Backward Induction: Chess, Strategies, and Credible Threats}
+	
+	This section is about the concept of a \textbf{strategy} in sequential games and introduces \textbf{Zermelo's Theorem}, a foundational result for a large class of games like chess. By rigorously defining a strategy, we can distinguish between all possible Nash Equilibrium and the more refined set of outcomes predicted by backward induction. This distinction hinges on the idea of \textbf{credible threats}.
+	
+	\subsection*{Zermelo's Theorem and Games of Perfect Information}
+	Many classic sequential games - such as tic-tac-toe, checkers, and chess - belong to a class of games with specific properties:
+	\begin{itemize}
+		\item They are two-player games.
+		\item They have \textbf{perfect information}, meaning each player knows the complete history of all previous moves.
+		\item The game must end in a finite number of moves.
+		\item There are only three possible outcomes: Player 1 wins, Player 2 wins, or it is a draw.
+	\end{itemize}
+	For any game that satisfies these conditions, \textbf{Zermelo's Theorem} proves that exactly one of the following must be true: (1) Player 1 has a winning strategy, (2) Player 2 has a winning strategy, or (3) both players can force at least a draw. The theorem guarantees that a "solution" to the game exists, even if the game is too complex for us to find it (as is the case with chess). The proof relies on the same logic as backward induction, reasoning from the end of the game tree backwards.
+	
+	\subsection*{Defining Strategy in Sequential Games}
+	To analyze these games properly, we need a precise definition of a strategy. A \textbf{strategy} for a player is a complete plan of action that specifies a move for \textit{every possible contingency} or decision node at which that player might have to move. This is a crucial and sometimes counter-intuitive definition. A player's strategy must specify what they would do at every point in the game tree with their name on it, even for nodes that will not be reached if the strategy itself is followed.
+	
+	For example, a strategy for Player 1 must include what they would do on move 10, even if their plan for move 2 ensures the game ends by move 5. This comprehensive definition allows us to analyze the credibility of threats.
+	
+	\subsection*{Credible Threats and Entry Deterrence}
+	Consider a simple model of market entry:
+	\begin{itemize}
+		\item \textbf{Players}: An Entrant (potential competitor) and an Incumbent (a monopolist).
+		\item \textbf{Moves}: The Entrant decides whether to "Enter" the market or "Stay Out." If the Entrant enters, the Incumbent can either "Fight" (e.g., slash prices) or "Accommodate."
+		\item \textbf{Payoffs}:
+		\begin{itemize}
+			\item (Stay Out): Incumbent gets monopoly profit ($3$), Entrant gets nothing ($0$).
+			\item (Enter, Accommodate): They share the market, each getting a profit of $1$.
+			\item (Enter, Fight): A price war ensues, and both earn a profit of 0.
+		\end{itemize}
+	\end{itemize}
+	This game has two pure-strategy Nash Equilibrium:
+	\begin{enumerate}
+		\item \textbf{(Enter, Accommodate)}: If the Entrant's strategy is to Enter, the Incumbent's best response is to Accommodate (since $1 > 0$). If the Incumbent's strategy is to Accommodate, the Entrant's best response is to Enter (since $1 > 0$). This is a stable equilibrium.
+		\item \textbf{(Stay Out, Fight)}: If the Incumbent's strategy is to Fight, the Entrant's best response is to Stay Out (since $0 \geq 0$). If the Entrant's strategy is to Stay Out, the Incumbent's best response is to... well, their move is never reached. But their \textit{plan} to Fight is what keeps the Entrant out.
+	\end{enumerate}
+	The second equilibrium is problematic because it relies on a \textbf{non-credible threat}. The Incumbent's threat to "Fight" is not rational. If the Entrant were to actually enter the market (i.e., call the Incumbent's bluff), the Incumbent would be faced with a choice between getting a payoff of $1$ (Accommodate) or $0$ (Fight). A rational Incumbent would choose to accommodate.
+	
+	Backward induction solves this problem. It forces us to only consider credible threats - those that a player would actually carry out if called upon to do so. By starting at the Incumbent's decision, we see they would choose Accommodate. Knowing this, the Entrant will choose to Enter. Therefore, backward induction eliminates the equilibrium based on the non-credible threat and isolates the more plausible outcome.
+	
+	\section{Backward Induction: Reputation and Duels}
+	
+	This section delves into scenarios where backward induction seems to break down or leads to more complex results. We will explore the power of \textbf{reputation} in repeated interactions and analyze games where the primary strategic decision is not \textit{what} to do, but \textit{when} to do it.
+	
+	\subsection*{Reputation and the Chain Store Paradox}
+	Let's revisit the entry deterrence game from the previous section. Backward induction tells us that a rational incumbent will always accommodate a new entrant. However, what if the incumbent (let's call her Ali) owns a chain of $10$ pizza shops in $10$ different towns and faces a sequence of $10$ potential entrants, one after another?
+	
+	In the $10$th and final town, the game is a one-shot encounter, and Ali will accommodate. Knowing this, in the $9$th town, Ali also has no incentive to build a tough reputation, so she will accommodate there as well. Applying backward induction all the way to the start, the prediction is that Ali will accommodate every single time. This is known as the \textbf{Chain Store Paradox}.
+	
+	This result feels wrong because it ignores the power of reputation. What if there is even a tiny probability - say, $1\%$ - that Ali is not perfectly rational? What if she is a "crazy" type who genuinely enjoys fighting, even if it costs her money?
+	\begin{itemize}
+		\item The first entrant now faces a dilemma. If they enter, there is a chance they will be fought.
+		\item If Ali does fight the first entrant, the second entrant's belief that Ali might be the "crazy" type will increase significantly.
+	\end{itemize}
+	A rational Ali can leverage this uncertainty. By fighting the first one or two entrants, she can build a \textit{reputation} for being tough. This reputation, even if it is a bluff, can be powerful enough to deter all subsequent entrants. The small cost of fighting early on is a strategic investment that pays off by preserving her monopoly profits in later markets. This logic applies to many real-world situations, from international relations (a policy of never negotiating with terrorists) to personal interactions (having a "short fuse").
+	
+	\subsection*{The Duel: A Game of Timing}
+	Consider a duel where two opponents, each with a wet sponge, start at a distance and take turns moving one step closer to each other. On their turn, a player can either step forward or throw their sponge. The probability of hitting the opponent increases as the distance decreases. The strategic question is: when is the optimal moment to throw?
+	
+	This game is not about choosing a move, but about choosing the timing of that move. It is analogous to deciding when to launch a new product, when to break from the peloton in a cycling race, or when to make a decisive move in a negotiation.
+	
+	We can solve this game using a combination of dominance and backward induction. Let the probability that player $i$ hits from distance $D$ be $P_i(D)$.
+	\begin{itemize}
+		\item \textbf{Dominance Argument}: As long as you believe your opponent will \textit{not} throw on their next turn, it is always better to take a step forward. Waiting improves your own probability of hitting without any immediate risk. Therefore, for most of the game, "Wait" dominates "Throw."
+		\item \textbf{Backward Induction Argument}: However, the game must end. The "Wait, wait, wait" logic cannot go on forever. There will come a critical distance, let's call it $D^*$, where one player realizes: "If I take another step forward, my opponent's probability of hitting me will be so high that they will be forced to throw on their next turn. Therefore, I must throw now."
+	\end{itemize}
+	This critical distance $D^*$ is the point where the condition $P_i(D^*) + P_j(D^*-1) > 1$ is first met for one of the players. The game unravels from this point backward. At any distance greater than $D^*$, both players know the other will wait, so they also wait. At distance $D^*$, the player whose turn it is knows that if they wait, the other player will throw. This knowledge forces the current player to act, and the first throw occurs. The solution demonstrates a key strategic insight: sometimes, the best move is to wait, but waiting only makes sense if you can correctly anticipate the exact moment your opponent will be forced to act.
+	
+	\section{Backward Induction: Ultimatums and Bargaining}
+	
+	This section examines bargaining situations, from simple one-shot ultimatums to complex, multi-stage negotiations. While backward induction provides a sharp, logical prediction for how these games should play out, experimental evidence reveals a significant divergence between theoretical rationality and actual human behavior, largely driven by concepts of fairness and pride.
+	
+	\subsection*{The Ultimatum Game}
+	The simplest bargaining model is the \textbf{Ultimatum Game}. Player 1 proposes a division of a sum of money (the "pie"), and Player 2 can either "accept" the offer, in which case the money is split as proposed, or "reject" it, in which case both players receive nothing.
+	\begin{itemize}
+		\item \textbf{Backward Induction Prediction}: We start with Player 2's decision. A purely rational Player 2 should accept any offer greater than zero, because something is better than nothing. Knowing this, a rational Player 1 should offer Player 2 the smallest possible positive amount (e.g., one penny) and keep the rest for themselves.
+		\item \textbf{Experimental Results}: In practice, this is not what happens. Offers of this nature are almost always rejected. People routinely turn down free money out of pride or a desire to punish what they perceive as an unfair offer. Consequently, proposers, anticipating this reaction, tend to make much more generous offers, often close to a 50/50 split.
+	\end{itemize}
+	The results show that human decision-making is not solely based on maximizing monetary payoffs. Emotions and social norms, particularly a powerful sense of fairness, play a crucial role. This is further supported by the \textbf{Dictator Game}, a variation where Player 2 has no power to reject. Even without the threat of rejection, many "dictators" (Player 1) choose to give a non-zero amount to the other player.
+	
+	\subsection*{Multi-Stage Bargaining and the Power of Patience}
+	What happens when we allow for counter-offers? Consider a two-period bargaining game. Player 1 makes an offer. If Player 2 rejects, the pie shrinks (due to a \textbf{discount factor}, $\delta < 1$, reflecting impatience or the time value of money), and the roles reverse: Player 2 now gets to make a take-it-or-leave-it offer to Player 1.
+	
+	We can solve this using backward induction:
+	\begin{enumerate}
+		\item \textbf{In Period 2}: If the game reaches this stage, Player 2 is the proposer in a one-shot ultimatum game for a pie of size $\delta$. Player 2 will offer Player 1 almost nothing and keep $\delta$ for themselves.
+		\item \textbf{In Period 1}: Player 1 knows that if their offer is rejected, Player 2 can guarantee a payoff of (approximately) $\delta$ in the next period. To make their offer acceptable, Player 1 must offer Player 2 at least $\delta$. Therefore, the equilibrium outcome is for Player 1 to offer $\delta$ to Player 2 and keep $1-\delta$ for themself.
+	\end{enumerate}
+	The player who is more patient (has a higher $\delta$) has more bargaining power. Their threat to reject an offer and wait for the next period is more credible, allowing them to secure a larger share of the pie.
+	
+	\subsection*{Infinite Bargaining and the 50/50 Split}
+	This logic can be extended to games with three, four, or even an infinite number of alternating offers. As the number of potential bargaining rounds increases and the time between offers becomes vanishingly small (i.e., the discount factor $\delta$ approaches 1), the first-mover advantage is almost entirely eliminated. The predicted split converges to a 50/50 division of the pie.
+	
+	A key, and perhaps unrealistic, prediction of this model is that in equilibrium, there is \textbf{no haggling}. The first offer made is immediately accepted because both players perform the same backward induction logic and understand the optimal, credible offer from the outset. In the real world, bargaining and haggling persist because of incomplete information-players often have uncertainty about the other's patience, their valuation of the pie, and whether they are truly rational.
+	
+	\section{Imperfect Information: Information Sets and Sub-Game Perfection}
+	
+	\subsection*{Games with Imperfect Information}So far, we have primarily studied games with perfect information, where at every point in the game, each player knows exactly what has transpired before their turn. However, many real-world strategic situations are characterized by imperfect information, where players do not have full knowledge of the history of the game. For example, in card games like poker, a player does not know what cards their opponents have. To represent imperfect information in an extensive form game, we use \textbf{information sets}. An information set is a set of decision nodes for a player such that they cannot distinguish between any of the nodes in the set. Visually, we group these nodes together with a dotted line or an oval.
+	\begin{itemize}
+		\item All nodes in an information set belong to the same player.
+		\item The player has the same set of available actions at each node within the information set.
+		\item When a player is at a node within an information set, they do not know which specific node they are at. They only know that they are at one of the nodes within that set.
+	\end{itemize}
+	A game with imperfect information is one where at least one information set contains more than one node.
+	\subsection*{Sub-Game Perfection and Information Sets}In games with perfect information, we used the concept of a \textbf{sub-game} to define a Sub-Game Perfect Nash Equilibrium (SPNE). A sub-game is essentially a piece of the game tree that can stand on its own, starting from a single node. However, this definition breaks down in games with imperfect information.
+	
+	A \textbf{sub-game} must start at a node that is the only node in its information set. This is a crucial restriction. An information set can be thought of as a single point of decision for a player, and to perform backward induction or analyze a sub-game, we need to know exactly where we are starting from. If a node is part of a larger information set, we cannot isolate it as the starting point of a sub-game because the player making the decision does not know which node they are at. Therefore, the definition of a Sub-Game Perfect Nash Equilibrium in games with imperfect information requires that the players' strategies constitute a Nash equilibrium in every sub-game that meets this strict definition. Consider a game where Player 1 chooses between actions A and B. If Player 1 chooses B, the game ends. If Player 1 chooses A, Player 2 chooses between actions C and D. The key is that Player 2 does not know what Player 1 chose. This is represented by an information set that contains both the node where Player 2's action follows Player 1 choosing A, and the node where it follows Player 1 choosing B. In this game, there are no proper sub-games because the only candidate for a sub-game is the part of the game starting at Player 2's information set, but this information set contains more than one node. Therefore, the concept of SPNE is not useful for analyzing this specific type of game. For games like this, we must resort to other solution concepts, such as Nash Equilibrium or the more advanced concept of Bayesian Nash Equilibrium, which we will not cover here.
+	
+	\section{Subgame Perfect Equilibrium: Matchmaking and Strategic Investments}
+	
+	\subsection*{The Matching Game}
+	
+	Consider a simple two-stage game between a matchmaker, a man, and a woman. The woman has a value $v_w$ for being in a relationship and the man has a value $v_m$ for being in a relationship. In the first stage, the matchmaker can propose a match. In the second stage, if a match is proposed, both the man and the woman must say “yes” for the match to go through. If the man says no, the woman gets a payoff of 0. If the woman says no, the man gets a payoff of 0. If both say yes, the match is made and the matchmaker gets a payment $P$, which is divided between the man and the woman such that the man gets a share $\alpha P$ and the woman gets $(1-\alpha)P$. The matchmaker’s goal is to make a match with the smallest possible payment to the man and woman.
+	
+	To find the subgame perfect Nash equilibrium, we use backward induction.
+	
+	\begin{enumerate}
+		\item \textbf{Stage 2: The Decision to Accept or Reject.}
+		
+		If a match is proposed, the man will say “yes” iff his share is greater than or equal to his outside option (his value of being alone). Similarly, the woman will say “yes” iff her share is greater than or equal to her value of being alone. Therefore, the minimum offers required to secure “yes” votes are:
+		$$\text{Man's share} \ge v_{m} \text{ and } \text{Woman's share} \ge v_{w}.$$
+		Since the matchmaker wants to minimize the payment, they will offer exactly these minimum amounts. The minimum total payment for the matchmaker to get a “yes” from both parties is $v_m + v_w$.
+		
+		\item \textbf{Stage 1: The Matchmaker's Proposal.}
+		
+		The matchmaker knows the outcomes of the second stage. They know that if they propose a match, they will have to pay at least $v_{m} + v_{w}$ to the man and woman. The matchmaker will propose a match iff their payoff from proposing is at least as large as their outside option. If the matchmaker has no outside option, they will propose a match if their payoff is nonnegative, i.e. $P - (v_{m} + v_{w}) \geq 0. $
+	\end{enumerate}
+	
+	The SPNE is that the matchmaker proposes a match if $P \geq v_m+v_w$ and offers exactly $v_m$ and $v_w$ to the man and woman, who both accept. This shows how subgame perfection can be used to find the credible outcomes in multi-stage games.
+	
+	\subsection*{Strategic Investment in Sequential Games}
+	
+	The concept of subgame perfection can also be applied to games of strategic investment. Consider a game where a firm (Firm 1) decides whether to invest in a costly technology. This investment will change the structure of a later game with a competitor (Firm 2). The investment is a sunk cost that changes the payoffs in the subsequent stage.
+	
+	\begin{enumerate}
+		\item \textbf{Backward Induction:} First analyze the subgame that follows the investment (or lack thereof). Find the Nash equilibrium of this subgame.
+		\item \textbf{Sunk Costs:} Sunk costs are costs already incurred and cannot be recovered. When analyzing the subsequent subgame, a rational player ignores the sunk cost. The player's decision in the subgame is based on the payoffs from that point forward, not on costs incurred to get to that point.
+	\end{enumerate}
+	
+	This logic allows us to analyze how a firm's initial, irreversible investment decision can credibly commit them to a particular strategy, thereby influencing their competitor's actions in the future. In essence, the firm invests to make a future threat or promise credible.
+	
+	\section{Subgame Perfect Equilibrium: Wars of Attrition}
+	
+	\subsection*{The War of Attrition: A Simple Model}
+	A war of attrition is a type of strategic conflict where players continuously incur a small cost to hold out for a prize. The game ends as soon as one player "quits" or "gives in," at which point the other player wins the prize. The key feature of these games is that players can continue fighting even when the accumulated costs exceed the value of the prize.
+	
+	\begin{itemize}
+		\item \textbf{Players:} Two players.
+		\item \textbf{Actions:} In each period, a player can either "fight" or "quit."
+		\item \textbf{Payoffs:} The winner gets a prize of value $V$. In each period they both fight, they each incur a cost $C$. If both quit simultaneously, their payoff is 0.
+	\end{itemize}
+	
+	The central question in a war of attrition is: how can prolonged fighting, which seems irrational, emerge from a game between two rational players? The answer lies in the concept of \textbf{sunk costs} and the use of a \textbf{mixed strategy equilibrium}.
+	
+	\subsection*{Sunk Costs and Rationality}
+	A cost is "sunk" if it has already been paid and cannot be recovered. In a war of attrition, the costs incurred from fighting in previous periods are sunk costs. A rational player will ignore these costs when making a decision about whether to fight or quit in the current period. This is because the past cannot be changed; the only thing that matters is the future payoff. The fact that a player has already paid a high cost to get to this point is irrelevant to their decision to continue. This is what can lead to prolonged fighting.
+	
+	\subsection*{Mixed Strategy Equilibrium}
+	In a game of attrition, there are no pure strategy equilibrium where players consistently choose to either fight or quit. If a player knew the other would always fight, they would quit immediately. If a player knew the other would always quit, they would fight and win the prize with no cost. This leads us to consider a mixed strategy equilibrium, where each player chooses to fight with a certain probability.
+	
+	For a simplified two-period game, a mixed strategy equilibrium exists where each player's probability of fighting is determined by the ratio of the prize to the cost. This can be expressed as:
+	$$P(\text{fight}) = \frac{V}{V+C}$$
+	In this equilibrium, there is a positive probability that both players will choose to fight, and that the game will continue into a second period. The key insight is that this prolonged fighting is not a result of irrationality or pride; it is the predictable outcome of a mixed strategy equilibrium between two rational players who are holding out for the prize. This logic can be extended to games that can last for an infinite number of periods.
+	
+	\section{Repeated Games: Cooperation vs. the End Game}
+	
+	\subsection*{The Problem of Cooperation in Finitely Repeated Games}
+	
+	The central question in repeated games is whether the possibility of future interaction can induce cooperation, even when a one-shot interaction would lead to defection. The classic example is the Prisoner's Dilemma. In a single play of the game, both players have a dominant strategy to defect, leading to a sub-optimal outcome for both.
+	
+	A natural thought is that if the game is repeated, players can cooperate to achieve a better outcome. However, this logic breaks down in games with a known, finite number of repetitions. We can prove this using backward induction.
+	
+	Consider a Prisoner's Dilemma that is repeated a known number of times, say, $T$ times.
+	
+	\begin{enumerate}
+		\item \textbf{The Last Period ($T$):}
+		
+		In the final period of the game, players know there will be no future interaction. The only thing that matters is the payoff in this single round. Since the stage game is a Prisoner's Dilemma, the dominant strategy for each player is to defect. Therefore, the unique Nash equilibrium in the last period is for both players to defect.
+		
+		\item \textbf{The Penultimate Period ($T-1$):}
+		
+		Since players are rational and know that both will defect in the last period, they have no incentive to cooperate in period $T-1$. The threat of punishment in the next period is empty because defection is the only rational action. Thus, the dominant strategy in period $T-1$ is also to defect.
+		
+		\item \textbf{Unraveling:}
+		
+		This logic continues backward all the way to the first period. The game "unravels" from the end. The only subgame perfect equilibrium in a finitely repeated Prisoner's Dilemma is for players to defect in every period.
+	\end{enumerate}
+	
+	This phenomenon is known as the \textit{end-game effect}. It shows that in games with a known end, rational players cannot sustain cooperation based on the threat of future punishment.
+	
+	\subsection*{Cooperation in Infinitely Repeated Games}
+	
+	The situation changes drastically when the game is infinitely repeated or when the players do not know when the game will end. In this case, there is no "last period" for the game to unravel from. This opens the door for strategies that can credibly sustain cooperation.
+	
+	One such strategy is the \textbf{Grim Trigger Strategy}:
+	\begin{itemize}
+		\item Cooperate in the first period.
+		\item Continue to cooperate as long as the other player cooperates.
+		\item If the other player ever defects, defect for all future periods forever.
+	\end{itemize}
+	
+	To determine if this is a subgame perfect equilibrium, compare the short-term gains from defection with the long-term losses. Let $\delta$ be the discount factor ($0<\delta<1$), which represents the value of future payoffs relative to current payoffs. A rational player will not deviate from cooperation if the present value of the stream of cooperation payoffs is greater than the one-time gain from defection plus the present value of the stream of punishment payoffs.
+	
+	The crucial insight is that in infinitely repeated games, the "shadow of the future" can be powerful enough to incentivize cooperation. The threat of an unending punishment (defection forever) is a credible deterrent to a short-term defection. The grim trigger strategy is a Nash equilibrium if and only if the discount factor $\delta$ is sufficiently high, meaning players value future payoffs enough to forgo a one-time gain today.
+	
+	\section{Repeated Games: Cheating, Punishment, and Outsourcing}
+	
+	\subsection*{The Role of an Ongoing Relationship}
+	In repeated games, the possibility of an ongoing relationship can provide a powerful incentive for players to cooperate. The core idea is that the promise of future rewards and the threat of future punishments can outweigh the short-term gain from cheating. The strength of this incentive is determined by the likelihood that the relationship will continue, which is represented by the discount factor $\delta$ (delta). A higher $\delta$ means that players place more value on future payoffs, making them more willing to cooperate today to ensure the relationship continues.
+	
+	\subsection*{The Credibility of Punishment}
+	For a threat of punishment to work, it must be credible. This is a major challenge in games with a known end, as the punishment threat unravels from the final period. However, in games with an uncertain or infinite number of repetitions, players can sustain cooperation using strategies that are credible in every subgame.
+	
+	A common example is the \textbf{Grim Trigger Strategy}: cooperate as long as the other player cooperates, but if they ever defect, you defect for all future periods. This is a very severe punishment, and for it to be a subgame perfect equilibrium, the value of the future relationship must be high enough to deter the initial defection.
+	
+	Alternatively, a "softer" punishment strategy can be used. For example, a player could choose to punish a defection by only defecting for one period before returning to cooperation. This is less severe, but it requires a higher value for the future (a larger $\delta$) to be a credible deterrent. This highlights a trade-off: more severe punishments can sustain cooperation with a lower probability of continuation, while less severe punishments require a higher probability of continuation.
+	
+	\subsection*{Application: Outsourcing and Cheating}
+	These concepts have important real-world applications, such as in business relationships and supply chain management. Consider a company from a developed country investing in an emerging market. The developed-country company wants the local agent to act honestly and not cheat. In a one-shot game, the company might have to pay a significant premium to prevent the agent from cheating.
+	
+	However, if the relationship is expected to be ongoing, the developed-country company can use the threat of ending the relationship to ensure the local agent's good behavior. If the probability of the relationship continuing is sufficiently high, the company can avoid paying the premium, and the local agent will choose to cooperate because the value of the future relationship is greater than the one-time gain from cheating. This demonstrates how the shadow of the future can solve moral hazard problems and facilitate efficient business relationships without the need for complex and costly contracts.
+	
+	\section{Asymmetric Information: Silence, Signaling and Suffering Education}
+	
+	\subsection*{Informational Unraveling}
+	Asymmetric information exists when one party to a transaction has more or better information than the other. This can be a significant problem in strategic situations. A simple form of asymmetric information occurs when one party has "private information" that can be credibly verified if they choose to reveal it.
+	
+	Consider a firm that has private information about its production costs (low, medium, or high). The firm knows its own costs, but its competitor does not. However, the firm can verifiably reveal its costs (e.g., by hiring a reputable auditor to publish the data).
+	
+	\begin{enumerate}
+		\item \textbf{The Low-Cost Firm:} A low-cost firm has a strong incentive to reveal its costs. By doing so, it signals to the competitor that it is very efficient, which will cause the competitor to decrease its production, leading to a higher profit for the low-cost firm.
+		\item \textbf{The Medium-Cost Firm:} The medium-cost firm knows the low-cost firm will reveal its costs. If the medium-cost firm remains silent, the competitor will assume its costs are either medium or high. To avoid being mistaken for a high-cost firm, the medium-cost firm will also reveal its costs.
+		\item \textbf{The High-Cost Firm:} This process continues, creating a cascade effect. All firms will reveal their costs to avoid being mistaken for a higher-cost type, except for the firm with the highest costs. This phenomenon is known as \textbf{informational unraveling}.
+	\end{enumerate}
+	
+	The key takeaway is that in situations where information can be verifiably revealed, silence can be a powerful signal in itself. The lack of a signal is often just as informative as the signal itself.
+	
+	\subsection*{Costly Signaling}
+	What about situations where information is not easily verifiable? In these cases, a party must use a costly signal to credibly convey their private information. A successful signal must be one that is easier for the "good type" to send than for the "bad type" to send.
+	
+	A classic example is education as a signal of worker ability.
+	\begin{itemize}
+		\item \textbf{The Model:} Assume there are two types of workers: "good" workers (high productivity) and "bad" workers (low productivity). Employers cannot distinguish between them.
+		\item \textbf{The Signal:} The signal is a college degree or an MBA. Earning this degree is costly, not just in terms of tuition, but also in "pain and suffering."
+		\item \textbf{The Separation:} A successful signaling equilibrium requires that the cost of obtaining the degree is low enough for good workers to pursue it (since their benefit from the signal is high) but high enough for bad workers to choose not to (since their benefit is not enough to outweigh the cost). This is what creates a \textbf{separating equilibrium}, where the action of getting a degree separates the good from the bad workers.
+	\end{itemize}
+	
+	This model has some pessimistic implications. In this view, education is not about learning; it is simply a socially wasteful process designed to credibly signal ability. It can also be seen as a driver of inequality, as it helps good workers secure higher wages while potentially lowering the wages of bad workers. The model also predicts "qualification inflation," where the costs of the signal must continuously increase to maintain its effectiveness.
+	
+	\section{Asymmetric Information: Auctions and the Winner's Curse}
+	
+	\subsection*{Auctions and Asymmetric Information}
+	Auctions are a prime example of a game with asymmetric information. Bidders have private information, such as their own valuation of the item, which is not known to the other bidders. We can categorize auctions based on the nature of the value of the item being sold.
+	
+	\begin{itemize}
+		\item \textbf{Private Value Auctions:} The value of the item is unique and private to each bidder. My value for a piece of art is my own and is not influenced by how much others value it.
+		\item \textbf{Common Value Auctions:} The true value of the item is the same for everyone, but no one knows what that value is with certainty. Bidders have private information in the form of their own estimate of the common value. A classic example is a jar of coins, where the true value is the same for everyone, but bidders have different estimates of that value.
+	\end{itemize}
+	Many real-world items, like a house, are a hybrid of both private and common values. The value of living in the house (private value) is combined with the market value for resale (common value).
+	
+	\subsection*{The Winner's Curse}
+	The Winner's Curse is a phenomenon that occurs in common value auctions. It states that the winner of the auction is likely to have overpaid for the item. This happens because the person who wins the auction is the one who submitted the highest bid. In a common value setting, the highest bid is often the one that is based on the most optimistic and, therefore, most likely to be an inflated estimate of the item's true value.
+	
+	To avoid the Winner's Curse, a rational bidder must adjust their bid to account for the fact that if they win, it is because their estimate was the highest. The optimal strategy is to "shade" your bid, or bid less than your initial estimate of the value, to account for this possibility of overestimation.
+	
+	\subsection*{Types of Auction Structures}
+	The optimal bidding strategy depends on the structure of the auction. Here are the four basic types:
+	
+	\begin{itemize}
+		\item \textbf{First-Price Sealed-Bid:} The highest bidder wins and pays a price equal to their bid.
+		\item \textbf{Second-Price Sealed-Bid (Vickrey):} The highest bidder wins but pays a price equal to the second-highest bid.
+		\item \textbf{Ascending Open (English):} Bidders continuously raise the price until only one bidder remains. The winner pays the last announced price.
+		\item \textbf{Descending Open (Dutch):} The auctioneer starts at a high price and lowers it until a bidder accepts. That bidder wins and pays the last announced price.
+	\end{itemize}
+	
+	For \textbf{private value auctions}, the optimal strategy in a second-price or ascending open auction is to bid your true value. In a first-price or descending open auction, the optimal strategy is to bid less than your true value to increase your profit margin. These strategies are a direct result of the different incentives created by each auction type.
+
+\end{document}
