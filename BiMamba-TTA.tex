@@ -1,0 +1,351 @@
+\documentclass{beamer}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\title{BiMamba-TTA}
+\author{Lado Turmanidze}
+\date{February 3, 2026}
+
+\definecolor{coolpurple}{HTML}{7f65a0}
+\definecolor{bgcolor}{HTML}{414042}
+\setbeamercolor{normal text}{fg=white,bg=bgcolor}
+\setbeamercolor{structure}{fg=coolpurple}
+\setbeamercolor{frametitle}{fg=white,bg=coolpurple}
+\setbeamercolor{title}{fg=white,bg=coolpurple}
+\setbeamercolor{date}{fg=white}
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{item}{fg=coolpurple}
+
+\begin{document}
+	
+
+	% SLIDE 1: Title
+
+	\begin{frame}
+		\titlepage
+		
+		\vspace{1em}		
+		\scriptsize
+		Jia, Z., Du, T., Tian, Z., Li, H., Zhang, Y., \& Liu, C. (2025). \\
+		\textit{"A Multimodal BiMamba Network with Test-Time Adaptation for Emotion Recognition Based on Physiological Signals".} \\
+		In \textit{Proceedings of the 39th Conference on Neural Information Processing Systems (NeurIPS 2025)}.
+	\end{frame}
+	
+
+	% SLIDE 2: Paper Overview & Problem Formulation
+
+	\begin{frame}
+		\frametitle{Paper Overview \& Problem Formulation}
+		\small
+		
+		The goal of this paper is to recognize emotions (valence and arousal) from multimodal physiological signals (EEG, EOG, EMG, ECG, GSR) using deep learning, while remaining robust to missing sensor data at test time. This is cast as a \textbf{multi-class classification} problem over time-series data. The input is a collection of $M$ modality signals, each recorded over $L$ time steps across $C_i$ channels:
+		%
+		\begin{align*}
+			\mathbf{x} = \{\mathbf{x}_1, \mathbf{x}_2, \dots, \mathbf{x}_M\}, \qquad \mathbf{x}_i \in \mathbb{R}^{C_i \times L}, \quad i \in \{1,\dots,M\}
+		\end{align*}
+		The ground-truth label $y$ is converted to a one-hot vector $\mathbf{p}(y|\mathbf{x}) \in \mathbb{R}^N$, where $N$ is the number of emotion classes. The model outputs a predicted probability distribution over classes:
+		%
+		\begin{align*}
+			\hat{\mathbf{y}} = p(\hat{y} \mid \mathbf{x}) \in \mathbb{R}^N
+		\end{align*}
+		
+		Two core challenges remain:
+		\begin{enumerate}
+			\item How to model long-range temporal dependencies \emph{within} each modality and correlations \emph{across} modalities simultaneously 
+			\item How to adapt at test time when one or more modalities go missing, amplifying distribution shift.
+		\end{enumerate}
+		
+	\end{frame}
+	
+
+	% SLIDE 3: State Space Models - Foundations
+
+	\begin{frame}
+		\frametitle{Background: State Space Models (SSMs)}
+		\small
+		
+		A \textbf{state space model} maps an input sequence $x(t)$ to an output $y(t)$ through a latent hidden state $\mathbf{h}(t)$. The state evolves according to learned dynamics and input matrices $A \in \mathbb{R}^{N\times N}$, $B \in \mathbb{R}^{N\times 1}$ and the output is read via output and feedthrough matrices $C \in \mathbb{R}^{1\times N}$, $D \in \mathbb{R}^{N \times 1}$. \\
+		
+		\textbf{Continuous-time form (ODE):}
+		\begin{align*}
+			\frac{d\mathbf{h}(t)}{dt} &= A\,\mathbf{h}(t) + B\,x(t) \\
+			y(t) &= C\,\mathbf{h}(t) + D\,x(t)
+		\end{align*}
+		
+		\textbf{Discrete-time form (recurrence):} Discretized with step size $\Delta$ (e.g., via Bilinear Transform) to allow computation on digital hardware:
+		\begin{align*}
+			\mathbf{h}_t &= \bar{A}\,\mathbf{h}_{t-1} + \bar{B}\,x_t \\
+			y_t &= C\,\mathbf{h}_t
+		\end{align*}
+		where the discretized matrices are:
+		\begin{align*}
+			\bar{A}_\Delta = (I - \tfrac{\Delta}{2}A)^{-1}(I + \tfrac{\Delta}{2}A), \quad
+			\bar{B}_\Delta = (I - \tfrac{\Delta}{2}A)^{-1}\Delta B
+		\end{align*}
+		
+		\footnotesize
+		\textit{\textbf{Note}: D is omitted from the discrete-time form as the selective mechanism and hidden state dynamics are sufficient for the modeling task.}
+	\end{frame}
+
+
+	% SLIDE 4: Mamba - The Selective Mechanism
+
+	\begin{frame}
+		\frametitle{Mamba: The Selective State Space Model}
+		\small
+		
+		In a vanilla SSM, $A$, $B$, $C$ are time-invariant parameters (same for all time steps). Mamba makes $B$, $C$, and the step size $\Delta$ \textbf{input-dependent}, so the model learns to selectively gate information at every time step.
+		
+		\bigskip
+		\textbf{Step 1 - Input-dependent parameters:} separate linear layers project $x_t$ into dynamic $B_t$, $C_t$, $\Delta_t$:
+		\begin{align*}
+			B_t = \text{Linear}_B(x_t),\quad C_t = \text{Linear}_C(x_t), \quad \Delta_t = \text{Softplus} (\text{Linear}_\Delta(x_t))
+		\end{align*}
+		
+		where $\text{Softplus}(x) = \ln (1 + e^x)$. \\
+		
+		\textbf{Step 2 - Gated state update:} $\Delta_t$ controls the update magnitude (large $\Delta_t$ = "focus here"; small $\Delta_t$ = "skip"):
+		\begin{align*}
+			\mathbf{h}_t = \bar{A}_{\Delta_t} \mathbf{h}_{t-1} + \bar{B}_{\Delta_t} x_t
+		\end{align*}
+		
+		\textbf{Step 3 - Output readout:} the hidden state is projected to the output via the dynamic matrix $C_t$:
+		\begin{align*}
+			y_t = C_t\,\mathbf{h}_t
+		\end{align*}
+		
+	\end{frame}
+	
+
+	% SLIDE 5: BiMamba - Intra-Modal Module
+
+	\begin{frame}
+		\frametitle{BiMamba-TTA: Intra-Modal BiMamba Module}
+		\small
+		
+		Vanilla Mamba is autoregressive (past only). Emotion evolves in \emph{both} temporal directions, so we use \textbf{bidirectional} state-space modeling. For each modality $i$, after an initial encoder produces $h_i$:
+		
+		\bigskip
+		\textbf{1. Gating:} a SiLU-activated ($\sigma(x) = \frac{x}{1 + e^{-x}}$) gate suppresses noise and highlights emotion-relevant features:
+		\begin{align*}
+			g_i = \sigma \left(W^g_i\, h_i + b^g_i\right), \text{ where } W_i^g, b_i^g \text { are learned weight matrix and bias.}
+		\end{align*}
+		
+		\textbf{2. Forward and backward SSM passes} ($\mathrm{Rev}_t$ flips along time, $\odot$ is element-wise product):
+		\begin{align*}
+			h_i^{\rightarrow} &= g_i \odot \mathrm{SSM}^{\rightarrow}\!\Big(\sigma\!\big(\mathrm{Conv1D}^{\rightarrow}\!\big(W^h_i h_i + b^h_i\big)\big)\Big) \\[4pt]
+			h_i^{\leftarrow}  &= g_i \odot \mathrm{SSM}^{\leftarrow}\!\Big(\sigma\!\big(\mathrm{Conv1D}^{\leftarrow}\!\big(\mathrm{Rev}_t(W^h_i h_i + b^h_i)\big)\big)\Big)
+		\end{align*}
+		
+		\textbf{3. Merge + residual:} The output $u_i$ is the final intra-modal feature. The \textbf{intra-modal} module processes each signal independently to capture long-range temporal dependencies within that modality:
+		\begin{align*}
+			u_i = h_i + W^o_i\!\left(\frac{h_i^{\rightarrow} + \mathrm{Rev}_t(h_i^{\leftarrow})}{2}\right) + b^o_i
+		\end{align*}
+		
+	\end{frame}
+	
+
+	% SLIDE 6: BiMamba - Inter-Modal Module
+
+	\begin{frame}
+		\frametitle{BiMamba-TTA: Inter-Modal BiMamba Module}
+		\small
+		
+		Different modalities are physiologically linked (e.g.\ EEG arousal correlates with GSR conductance peaks and ECG heart-rate variability drops). The inter-modal module captures these \textbf{high-order cross-modal correlations} via shared hidden states.
+		
+		\bigskip
+		\textbf{1. Concatenate \& transpose:} stack all $u_i$ along the channel axis and swap time and channel dimensions so that BiMamba sweeps \emph{across modalities}:
+		\begin{align*}
+			m = \text{Transpose} \big(u_1 \circ u_2 \circ \cdots \circ u_M\big) \in \mathbb{R}^{\sum_{i=1}^M C'_i \times L'}
+		\end{align*}
+		where $\circ$ denotes channel-wise concatenation and $C'_i$ is the output channel count of modality $i$.
+		
+		\textbf{2. BiMamba along the channel dimension:}
+		\begin{align*}
+			H = \text{BiMamba}(m) \in \mathbb{R}^{\sum_{i=1}^M C'_i \times L'}
+		\end{align*}
+		In the \textbf{forward} pass hidden states built from modalities $\{1,\dots,i{-}1\}$ enrich modality $i$; in the \textbf{backward} pass, modalities $\{M,\dots,i{+}1\}$ do so. Every modality enriches every other.
+		
+	\end{frame}
+	
+
+	% SLIDE 7: Auxiliary Task & Training Loss
+
+	\begin{frame}
+		\frametitle{Auxiliary Task \& Training Objective}
+		\small
+		
+		Each intra-modal BiMamba branch also has its own classifier to:
+		\begin{enumerate}
+			\item balances training across modalities
+			\item prevents single-modality overfitting 
+			\item produces the unimodal entropies $\mathrm{Ent}(x_i)$ that are later needed for TTA filtering.
+		\end{enumerate}
+		
+		\bigskip
+		\textbf{Unimodal prediction} (per modality $i$, $N$ = number of classes):
+		\begin{align*}
+			p(\hat{y}_i \mid x_i) = \text{softmax} \big(W_i\, u_i + b_i\big) \in \mathbb{R}^N
+		\end{align*}
+		
+		\textbf{Per-modality cross-entropy loss} ($n$ = batch size):
+		\begin{align*}
+			\mathcal{L}_i = -\frac{1}{n}\sum_{j=1}^{n} p(y \mid x)^{(j)}\;\log\, p(\hat{y}_i \mid x_i)^{(j)}
+		\end{align*}
+		
+		\textbf{Total training objective} ($\mathcal{L}_{\mathrm{task}}$ = main multimodal cross-entropy, $\alpha_i$ = per-modality auxiliary weight):
+		\begin{align*}
+			\mathcal{L}_{\mathrm{train}} = \mathcal{L}_{\mathrm{task}} + \sum_{i=1}^{M} \alpha_i\,\mathcal{L}_i
+		\end{align*}
+		
+	\end{frame}
+	
+
+	% SLIDE 8: TTA Step 1 - Two-Level Entropy Filtering
+
+	\begin{frame}
+		\frametitle{TTA Step 1: Two-Level Entropy-Based Sample Filtering}
+		\small
+		
+		Missing sensors amplify distribution shift unevenly. We select only samples that are \textbf{confident} (low multimodal entropy $\Rightarrow$ close to source domain) and \textbf{multimodally rich} (high unimodal entropy $\Rightarrow$ genuinely needs several modalities).
+		
+		\textbf{Multimodal and unimodal entropies} ($N$ = number of classes):
+		\begin{align*}
+			\mathrm{Ent}(x) &= -\sum_{c=1}^{N} p(\hat{y}{=}c \mid x) \log\, p(\hat{y}{=}c \mid x)
+		\end{align*}
+		
+		\textbf{Adaptive thresholds} (smoothing factor $\beta_t = \beta_{t - 1} + \frac{t}{\mathrm{\# iter}}(1-\beta_{t - 1})$, $\beta{=}0.2$, $\mathrm{\# iter}{=}7$):
+		\begin{align*}
+			\gamma_m &= \tfrac{1}{n}\textstyle\sum_{j=1}^n \mathrm{Ent}(x)^{(j)} + \gamma'_m \cdot \beta_t \\[2pt]
+			\gamma_u &= \tfrac{1}{n}\textstyle\sum_{j=1}^n \sum_{i=1}^M \mu_i\,\mathrm{Ent}(x_i)^{(j)} - \gamma'_u \cdot \beta_t
+		\end{align*}
+		
+		\textbf{Selection criterion} ($\mu_i$ = unimodal weight for modality $i$):
+		\begin{align*}
+			S(x) = \left\{x \;\middle|\; \mathrm{Ent}(x) \le \gamma_m \;\;\mathrm{and}\;\; \textstyle\sum_{i=1}^M \mu_i\,\mathrm{Ent}(x_i) \ge \gamma_u\right\}
+		\end{align*}
+		
+	\end{frame}
+	
+
+	% SLIDE 9: TTA Step 2 - Mutual Information Sharing
+
+	\begin{frame}
+		\frametitle{TTA Step 2: Mutual Information Sharing Across Modalities}
+		\small
+		
+		When a modality is corrupted its prediction degrades. Intact modalities still carry useful signal. We align all modality predictions so that informative ones guide the corrupted ones, without letting a bad modality drag down the good ones.
+		
+		\textbf{Complementary probability} of modality $i$ (average prediction of all \emph{other} modalities):
+		\begin{align*}
+			p'(\hat{y}_i \mid x_i) = \frac{\displaystyle\sum_{j=1}^M p(\hat{y}_j \mid x_j) - p(\hat{y}_i \mid x_i)}{M-1}
+		\end{align*}
+		
+		\textbf{Mutual-information-sharing loss:} minimize KL divergence between each modality's prediction and a \emph{stabilized} target - the average of its complementary probability and the full multimodal prediction $p(\hat{y}\mid x)$. Including $p(\hat{y}\mid x)$ prevents a severely corrupted modality from pulling intact ones off course:
+		\begin{align*}
+			\mathcal{L}_{\mathrm{mis}}(x) = \sum_{i=1}^{M} D_{\mathrm{KL}}\!\left(\, p(\hat{y}_i \mid x_i) \;\Big\|\; \tfrac{1}{2}\Big(p'(\hat{y}_i \mid x_i) + p(\hat{y} \mid x)\Big)\right)
+		\end{align*}
+		
+	\end{frame}
+	
+
+	% SLIDE 10: TTA Final Loss & Optimization
+
+	\begin{frame}
+		\frametitle{TTA: Final Loss \& Optimization}
+		\small
+		
+		The two TTA components are combined into a single loss, weighted by sample confidence and gated by the two-level filter.
+		
+		\bigskip
+		\textbf{Sample confidence weight} ($\mathrm{Ent}_0$ is predefined normalisation factor):
+		\begin{align*}
+			\alpha(x) = \frac{1}{\exp \big(\mathrm{Ent}(x) - \mathrm{Ent}_0\big)}
+		\end{align*}
+		
+		\textbf{Total TTA loss}:
+		\begin{align*}
+			\mathcal{L}_{\mathrm{test}}(x) = \alpha(x)\;\mathbf{1}_{\{x\in S(x)\}}\;\Big(\mathrm{Ent}(x) + \lambda\,\mathcal{L}_{\mathrm{mis}}(x)\Big)
+		\end{align*}
+		
+		\textbf{Optimization:} only a small subset $\hat\Theta \subset \Theta$ of parameters is updated ("surgical fine-tuning" - first conv layer per encoder, first FC layer of the inter-modal module, all batch-norm layers):
+		\begin{align*}
+			\min_{\hat\Theta \,\in\, \Theta}\; \mathcal{L}_{\mathrm{test}}(x)
+		\end{align*}
+		This keeps the core model stable while adapting to the target domain.
+		
+	\end{frame}
+	
+
+	% SLIDE 11: Experimental Results
+
+\begin{frame}
+	\frametitle{Experimental Results}
+	\footnotesize % Slightly smaller font
+	\setlength{\tabcolsep}{4pt} % Reduce horizontal padding between columns
+	
+	\begin{block}{Without missing data - Accuracy}
+		\centering % Uses less vertical space than \begin{center}
+			\begin{tabular}{lcccc}
+				\hline
+				Method & DEAP Val & DEAP Aro & MAHNOB Val & MAHNOB Aro \\
+				\hline
+				TSception       & 0.613 & 0.635 & 0.633 & 0.599 \\
+				LGGNet          & 0.618 & 0.636 & 0.632 & 0.609 \\
+				VSGT            & 0.631 & 0.628 & 0.613 & 0.599 \\
+				MambaFormer     & 0.621 & 0.587 & 0.588 & 0.619 \\
+				\textbf{BiM-TTA} & \textbf{0.673} & \textbf{0.641} & \textbf{0.650} & \textbf{0.635} \\
+				\hline
+			\end{tabular}
+		\end{block}
+		
+		\vspace{-0.5em} % Nudge the second block up slightly
+		
+		\begin{block}{With missing data - Avg. improvement (\%)}
+			\centering
+			\begin{tabular}{lcccc}
+				\hline
+				Method & DEAP Val & DEAP Aro & MAHNOB Val & MAHNOB Aro \\
+				\hline
+				Tent            & $-0.162$ & $0.101$ & $-0.043$ & $0.086$ \\
+				EATA            & $-0.061$ & $0.134$ &  $0.171$ & $0.217$ \\
+				READ            &  $0.781$ & $0.372$ &  $0.058$ & $-0.146$ \\
+				2LTTA           &  $0.858$ & $0.429$ &  $0.124$ & $0.017$ \\
+				\textbf{BiM-TTA} & \textbf{1.172} & \textbf{1.309} & \textbf{1.089} & \textbf{0.506} \\
+				\hline
+			\end{tabular}
+		\end{block}
+		
+		\footnotesize
+		\textit{\textbf{Note}: Val - valence, Aro - arousal; DEAP and MAHNOB are datasets.}
+	\end{frame}
+	
+	
+	% SLIDE 12: How can we use BiMamba-TTA?
+	
+	\begin{frame}
+		\frametitle{How can we use BiMamba-TTA?}
+		\small
+		
+		\textbf{Our Task (possibly):} Personalized backchannel detection from multi-person group interactions with test-time adaptation to individual participants.
+		
+		\textbf{BiMamba-TTA Architecture Adaptation:}
+		\begin{itemize}
+			\footnotesize
+			\item \textbf{Intra-modal BiMamba:} Model temporal evolution within video (e.g., prolonged gaze $\Rightarrow$ nod) and audio (e.g., prosodic buildup $\Rightarrow$ "mhm") independently
+			\item \textbf{Inter-modal BiMamba:} Capture cross-modal synchrony (head nods aligned with vocal backchannels, facial affect with para-verbal cues)
+			\item \textbf{Test-Time Personalization:} Train on 77 participants, adapt to 1 target person:
+			\begin{itemize}
+				\scriptsize
+				\item Filter samples with confident predictions (low multimodal entropy) and rich multimodal cues (high unimodal entropy)
+				\item Handle missing/noisy modalities (occluded face, overlapping speech) via mutual information sharing
+				\item Surgical fine-tuning: only batch-norm + first encoder layers $\Rightarrow$ preserve general backchannel patterns while adapting to individual expression style
+			\end{itemize}
+		\end{itemize}
+		
+		\textbf{Key Advantage:} Unsupervised personalization - no labels needed from target person.
+		
+	\end{frame}
+	
+\end{document}
